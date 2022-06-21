@@ -1,8 +1,0 @@
-are you happy?
---if meh, then get a lollipop. did that help?
-e
-----if not interested, which of these topics are you interested in: myeloma diagnosis, social security card, student visa?
-------if macbook repair., DOCUMENT: macbookrepair.txt
-------if interested in myeloma, DOCUMENT: meyloma_decisiontree3.txt
-------if interested in student visa, DOCUMENT: visa.txt
-
