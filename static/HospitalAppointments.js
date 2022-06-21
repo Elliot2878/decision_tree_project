@@ -125,23 +125,17 @@ function input() {
 
 	//document.location.href = "tree.html";
 
-	let ifBackup = document.getElementsByName('ifBackup');
-    if(ifBackup[0].checked) {
-		window.location.href = "index.html";
+	let ifSearch = document.getElementsByName('ifSearch');
+	if(ifSearch[0].checked) {
+		window.location.href = "search.html";
 	}
 	else {
-		let ifSearch = document.getElementsByName('ifSearch');
-		if(ifSearch[0].checked) {
-			window.location.href = "search.html";
-		}
-		else {
-			window.location.href = "tree.html";
-		}
-	
-		for(let i = 0; i < ifSearch.length; i++) {
-			if(ifSearch[i].checked) {
-				localStorage.setItem("ifSearch", JSON.stringify(ifSearch[i].value));
-			}
+		window.location.href = "tree.html";
+	}
+
+	for(let i = 0; i < ifSearch.length; i++) {
+		if(ifSearch[i].checked) {
+			localStorage.setItem("ifSearch", JSON.stringify(ifSearch[i].value));
 		}
 	}
 
