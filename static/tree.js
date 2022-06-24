@@ -4,7 +4,11 @@ var arr = JSON.parse(localStorage.getItem("arr-array"));
 // The key is an id (a single line number starting from 0)
 var key = JSON.parse(localStorage.getItem("search_result"));
 var ifSubtree = JSON.parse(localStorage.getItem("ifSubtree"));
+
+// ifSearch will become yes only after the user first search the node 
+// This can prevent the tree.html from auto-selecting the answers even though the user just left the index page. 
 var ifSearch = JSON.parse(localStorage.getItem("ifSearch"));
+
 var error = JSON.parse(localStorage.getItem("error"));
 var Diagram = MindFusion.Diagramming.Diagram;
 var DiagramLink = MindFusion.Diagramming.DiagramLink;
@@ -29,7 +33,7 @@ if(error != "") {
 let root_key_id = [];
 var prev_line = 1;
 let path_subtree = []; 
-var index = 2; // for auto selecting the answers according to path
+var index = 2; // for auto selecting the answers according to path, it is used in the next option function
 myFunction();
 function myFunction() {
     diagram = Diagram.create(document.getElementById("diagram"));
@@ -62,6 +66,16 @@ function myFunction() {
     var node = new MindFusion.Diagramming.ControlNode(diagram);
     var len = str[id].search(',');
     s = str[0].substring(len + 1, str[0].length);
+
+    // detect if the text contains link and add hypertext reference to the link
+    if(s.includes("https")) {
+        let s_len = s.search("https");
+        let link = s.substring(s_len, s.length);
+        let link_ref = '<a href="' + link + '" target="_blank">' + link + '</a>';
+        s = s.substring(0, s_len) + link_ref;
+
+    }
+
     var val = `<div id="d1"><p>` + s + `</p></div>` + `<div><select data-interactive="true" data-event-change="selectClick" name= "${id}" class="select" id= "${id}"><option value="none" selected></option>`;
 
     if (arr[id].length > 0) {
@@ -84,30 +98,32 @@ function myFunction() {
     diagram.addItem(node);
     diagram.resizeToFitItems(10);
 
-    // printing the path from root to keyword node
-    findPath(0, root_key_id, key);
-    let root_key = [];
-    for(let i = 0; i < root_key_id.length; i++) {
-        root_key.push(str_hyphens[root_key_id[i]]);
+    // printing and saving the path from root to keyword node
+    if(ifSearch == 'yes') {
+        findPath(0, root_key_id, key);
+        let root_key = [];
+        for(let i = 0; i < root_key_id.length; i++) {
+            root_key.push(str_hyphens[root_key_id[i]]);
+        }
+
+        console.log("search path (from root to keyword with or without subtree): ");
+        for(let i = 0; i < root_key.length; i++) {
+            console.log(root_key[i] + '\n');
+        }
+        
+        // for passing values to python
+        let root_key_dic = Object.assign({}, root_key);
+        const s_test = JSON.stringify(root_key_dic);
+        $.ajax({
+            url:"/root_to_keyword",
+            type:"POST",
+            contentType:"application/json",
+            data: JSON.stringify(s_test),
+        });
+        // get subtree
+        subtree(ifSubtree, key); // this function will fill up the path_subtree
     }
-
-    console.log("search path (from root to keyword with or without subtree): ");
-    for(let i = 0; i < root_key.length; i++) {
-        console.log(root_key[i] + '\n');
-    }
-
-    // for passing values to python
-    let root_key_dic = Object.assign({}, root_key);
-    const s_test = JSON.stringify(root_key_dic);
-    $.ajax({
-        url:"/root_to_keyword",
-        type:"POST",
-        contentType:"application/json",
-        data: JSON.stringify(s_test),
-    });
-
-    // get subtree
-    subtree(ifSubtree, key); // this function will fill up the path_subtree
+        
 
     let path_subtree_dic = Object.assign({}, path_subtree );
     const s2 = JSON.stringify(path_subtree_dic);
@@ -118,7 +134,7 @@ function myFunction() {
         data: JSON.stringify(s2),
     });
 
-
+    console.log("check root_key_id: " + root_key_id);
     // auto select by root_key_id
     if(ifSearch == 'yes') {
         $('.select').val(root_key_id[1]);
@@ -135,6 +151,7 @@ let path_search = [];
 function selectClick(e, sender) {
     
     var selectControl = sender.getContent().getElementsByTagName("select")[0];
+    console.log(selectControl.value);
     deleteNode(sender.id);
     //console.log("parent number: " + sender.id);
     //console.log("children number: " + selectControl.value);
@@ -153,11 +170,6 @@ function selectClick(e, sender) {
             printPath(parent, parent_id, child, child_id, true);
         }
 
-
-        // handling multiple documents
-        if(child != undefined && (child.includes("DOCUMENT") || child.includes("document") )) {
-            multiDoc(child);
-        }
 
     }
 
@@ -178,17 +190,30 @@ function notSure(id, originNode) {
     var layout = new MindFusion.Graphs.TreeLayout();
     layout.root = node;
     layout.direction = MindFusion.Graphs.LayoutDirection.TopToBottom;
+    console.log("check layout.direction: " + layout.direction);
     // layout.keepRootPosition = true;
     layout.levelDistance = 10;
     linkType = MindFusion.Graphs.TreeLayoutLinkType.Cascading;
     if (arr[id].length > 0) {
         // console.log(arr[id].length);
         for (var i = 0; i < arr[id].length; i++) {
+
+
             node = new MindFusion.Diagramming.ControlNode(diagram);
             var ids = arr[id][i];
             // console.log(ids);
             len = str[ids].search(',');
             s = str[ids].substring(len + 1, str[ids].length);
+            
+            // detect if the text contains link and add hypertext reference to the link
+            if(s.includes("https")) {
+                let s_len = s.search("https");
+                let link = s.substring(s_len, s.length);
+                let link_ref = '<a href="' + link + '" target="_blank">' + link + '</a>';
+                str[ids] = str[ids].substring(0, len + 1) + s.substring(0, s_len) + link_ref;
+
+            }
+
             var val = `<div id="d1"><p>` + str[ids] + `</p></div>`;
             if (arr[ids].length > 0) {
                 val += `<div><select data-interactive="true" data-event-change="selectClick" name= "${ids}" id= "${ids}"><option value="none" selected></option>`;
@@ -226,9 +251,20 @@ function notSure(id, originNode) {
 }
 
 function nextoption(id, originNode) {
+
     var node = new MindFusion.Diagramming.ControlNode(diagram);
     len = str[id].search(',');
     s = str[id].substring(len + 1, str[id].length);
+
+    // detect if the text contains link and add hypertext reference to the link
+    if(s.includes("https")) {
+        let s_len = s.search("https");
+        let link = s.substring(s_len, s.length);
+        let link_ref = '<a href="' + link + '" target="_blank">' + link + '</a>';
+        s = s.substring(0, s_len) + link_ref;
+
+    }
+
     var val = `<div id="d1"><p>` + s + `</p></div>`;
     if (arr[id].length > 0) {
         val += `<div><select data-interactive="true" data-event-change="selectClick" name= "${id}" class="select" id= "${id}"><option value="none" selected></option>`;
@@ -259,9 +295,12 @@ function nextoption(id, originNode) {
     
     createAnimatedLink(originNode, node);
     diagram.resizeToFitItems(10);
+
     //auto select along the path
-    if(arr[id].length !=  0 && ifSearch == 'yes') {
-        $('.select').val(root_key_id[index]);
+    if(arr[id].length !=  0 && ifSearch == 'yes' && index < root_key_id.length) {
+        console.log("reach");
+        id_str = id.toString();
+        $('#' + id_str).val(root_key_id[index]);
         index = index + 1;
         selectClick(0, node);
     }
@@ -403,11 +442,83 @@ function subtree(ifSubtree, node_id) {
     }
 }
 
-function multiDoc(child) {
-    console.log("found multiple documents");
-    let doc_len = child.search(":");
-    let doc_name = child.substring(doc_len + 1, child.length);
-    console.log("check doc_name: " + doc_name);
-    localStorage.setItem("doc_name", JSON.stringify(doc_name));
 
+
+function input_search() {
+    keyword = $('#input').val()
+    result = keywordSearch(keyword);
+
+    if(result.length == 0) {
+        alert("The node containing this keyword doesn't exist.");
+    }
+    else if(keyword == '') {
+        alert("You did not input any keyword");
+    }
+    else if(result.length == 1) {
+        // localStorage.setItem("search_result", JSON.stringify(result[0]));
+        let text = document.getElementById('result');
+        
+        text.innerHTML = 'Only one node containing the keyword: <br>';
+        // for checking the first option
+        text.innerHTML += str[result[0]] + '<input name="search_result" type="radio" value="'+ result[0] +'" checked> <br>';
+
+        text.innerHTML += 'Do you want to print out the subtree of the keyword node? <br>';
+        text.innerHTML += 'Yes<input name="ifSubtree" type="radio" value="yes" checked> <br>';
+        text.innerHTML += 'No<input name="ifSubtree" type="radio" value="no"> <br>';
+        text.innerHTML += '<button class="btn btn-primary" onclick="submit()">submit</button>';
+        // window.location.href = "tree.html";        
+    }
+    else {
+        let text = document.getElementById('result');
+        text.innerHTML = 'All nodes containing the keyword (please choose the node you want and click submit): <br>' ;
+        // for checking the first option
+        text.innerHTML += '<p>' + str[result[0]] + '</p>' + '<input name="search_result" type="radio" value="'+ result[0] +'" checked> <br> ';
+        for(let i = 1; i < result.length; i++) {
+            text.innerHTML += '<p>' + str[result[i]] + '</p>' + '<input name="search_result" type="radio" value="'+ result[i] +'"> <br> ';
+        }
+
+        text.innerHTML += 'Do you want to print out the subtree of the keyword node? <br>';
+        text.innerHTML += 'Yes<input name="ifSubtree" type="radio" value="yes" checked> <br>';
+        text.innerHTML += 'No<input name="ifSubtree" type="radio" value="no"> <br>';
+        text.innerHTML += '<button class="btn btn-primary" onclick="submit()">submit</button>';
+    }
 }
+    
+function keywordSearch(key) {
+    let loc = [];
+    for(let i = 0; i < str_hyphens.length; i++) {
+        result = str_hyphens[i].search(key);
+        if(result != -1) {
+            loc.push(i);
+        }
+    }
+
+    return loc;
+}
+
+function submit(){
+    let result = document.getElementsByName('search_result');
+    for(let i = 0; i < result.length; i++) {
+        if(result[i].checked) {
+            localStorage.setItem("search_result", JSON.stringify(result[i].value));
+        }
+    }
+
+    let ifSubtree = document.getElementsByName('ifSubtree');
+    for(let i = 0; i < ifSubtree.length; i++) {
+        if(ifSubtree[i].checked) {
+            localStorage.setItem("ifSubtree", JSON.stringify(ifSubtree[i].value));
+
+        }
+    }
+    localStorage.setItem("ifSearch", JSON.stringify('yes'));
+    window.location.href = "tree.html"; 
+}
+
+
+
+
+
+
+
+

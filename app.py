@@ -14,15 +14,7 @@ def index():
 
 @app.route('/tree.html')
 def tree():
-    return render_template('tree.html')
-
-@app.route('/search.html')
-def search():
-    # empty the root_to_curr.txt file
-    f = open("root_to_curr.txt", 'r+')
-    f.truncate(0)
-    return render_template('search.html')    
-
+    return render_template('tree.html')  
 
 @app.route('/root_to_curr', methods=['POST'])
 def root_to_curr():

@@ -27,8 +27,25 @@ var diagram = null;
 
 // console.log(str);
 
+
+
 var input1 = document.querySelector('input');
 var textarea = document.querySelector('textarea');
+let chooseTopic = document.getElementsByName('chooseTopic');
+
+for(let i = 0; i < chooseTopic.length; i++) {
+	chooseTopic[i].addEventListener('change', () => {
+		if(chooseTopic[i].checked) {
+			$.get( chooseTopic[i].value, function( data ) {
+			var text = data;
+			console.log(text);
+			textarea.value = text;
+			});
+		}
+	});
+}
+
+
 input1.addEventListener('change', () => {
 	let files = input1.files;
 	if (files.length == 0) return;
@@ -122,21 +139,9 @@ function input() {
 	localStorage.setItem("str-hyphens-array", JSON.stringify(str_hyphens));
 	localStorage.setItem("arr-array", JSON.stringify(arr));
 	localStorage.setItem("error", JSON.stringify(error));
-
+	localStorage.setItem("ifSearch", JSON.stringify('no'));
 	//document.location.href = "tree.html";
 
-	let ifSearch = document.getElementsByName('ifSearch');
-	if(ifSearch[0].checked) {
-		window.location.href = "search.html";
-	}
-	else {
-		window.location.href = "tree.html";
-	}
-
-	for(let i = 0; i < ifSearch.length; i++) {
-		if(ifSearch[i].checked) {
-			localStorage.setItem("ifSearch", JSON.stringify(ifSearch[i].value));
-		}
-	}
+	window.location.href = "tree.html";
 
 }
