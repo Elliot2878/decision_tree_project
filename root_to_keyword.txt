@@ -1,8 +1,11 @@
-are you happy?
---if meh, then get a lollipop. did that help?
-e
-----if not interested, which of these topics are you interested in: myeloma diagnosis, social security card, student visa?
-------if macbook repair., DOCUMENT: macbookrepair.txt
-------if interested in myeloma, DOCUMENT: meyloma_decisiontree3.txt
-------if interested in student visa, DOCUMENT: visa.txt
+After initial diagnostic workup, What are the clinical findings?
+--If Multiple Myeloma (symptomatic), Perform primary treatment through myeloma therapy. Is the patient a transplant candidate?
+----If Yes, Is the patient frail?
+------If No (frail score <2), Does the patient have either renal insufficiency or peripheral neuropathy?
+--------If No, Is the patient standard or high risk?
+----------If Standard risk, The treatments for the patient are Bortezomib/Lenalidomide/Dexamethasone combination or Carfilzomib/Lenalidomide/Dexamethasone or Carfilzomib/Lenalidomide/Bortezomib/Dexamethasone or Ixazomib/Lenalidomide/Dexamethasone. With Myeloma therapy done, Perform follow-up/surveillance as follows: [(Laboratory assessments appropriate for monitoring treatment toxicities may include: CBC, differential, platelet count, blood glucose and electrolytes, and metabolic panel),(Serum quantitative immunoglobulins, SPEP, and SIFE),(24-h urine for total protein, UPEP, and UIFE at baseline and as clinically indicated or if there is a significant change in FLC levels),(Serum FLC assay),(Whole-body imaging with MRI without contrast, low-dose CT scan, FDG PET/CT annually or as clinically indicated, ideally with the same technique used at diagnosis),(Bone marrow aspirate and biopsy at relapse with FISH as clinically indicated),(Assess for hematopoietic cell transplant candidacy: Refer for evaluation at a hematopoietic cell transplant center. Harvest hematopoietic stem cells (consider for 2 transplants if appropriate),(Consider minimal residual disease (MRD) as indicated for prognostication after shared decision with patient),(See NCCN Guidelines for Survivorship)] After completetion of follow-up/surveillance, analyze for response. Was there a response?
+------------If No, Perform therapy for previously treated myeloma or consider a clinical trial. With refractory disease and lack of treatment options, refer to palliative care.
+
+
+
 

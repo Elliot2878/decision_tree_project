@@ -5,59 +5,14 @@
     <title>Decision Tree with Animated Links</title>
     <meta charset="utf-8" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <style type="text/css">
-        .mf_diagram_controlNodeContent {
-            box-shadow: rgba(0, 52, 102, 0.35) 4px 4px 4px;
-            text-align: center;
-            border: 1px solid #648dae;
-            background-color: #90caf9 !important;
-            display: block;
-            margin-left:auto;
-            margin-right:auto;
-            width: 8em;
-        }
-
-        /* #d1 {
-            overflow-x: hidden;
-            overflow-y: auto;
-            margin-left: auto;
-            margin-right: auto;
-            width: 225px;
-            padding-bottom: 25px;
-            height: 100px;
-        } */
-
-        body {
-            font-family: Tahoma;
-            font-size: 14px;
-        }
-
-        table {
-            border-spacing: 0px;
-            margin-left: 10px;
-            border-right: 1px solid gray;
-            border-top: 1px solid gray;
-            font-size: 12px;
-        }
-
-        select {
-            font-family: Tahoma;
-            font-size: 14px;
-        }
-
-        td {
-            border-left: 1px solid gray;
-            padding: 5px;
-            border-bottom: 1px solid gray;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="../static/tree.css" /> 
 </head>
 
 <body>
     <!-- The Diagram component is bound to the canvas element below -->
     <!-- <div style="height: 300px;width: 300px;background-color: azure;"> -->
-    <div style="position: absolute; left: 520px; top: 20px; right: 20px; bottom: 10px; overflow: auto;border: 25px;">
-        <canvas id="diagram" width="1000px" height="1000px">
+    <div style="position: absolute; left: 20px; top: 20px; right: 20px; bottom: 10px; overflow: auto;border: 25px;">
+        <canvas id="diagram" width="1000px" height="1000px" style="position: absolute; left: 200px;">
             This page requires a browser that supports HTML 5 Canvas element.
         </canvas>
     </div>
@@ -68,6 +23,17 @@
     			width: 50px; height: 300px;z-index:3;">
         <canvas id="zoomer" width="50" height="300">
         </canvas>
+    </div>
+
+    <div style="width: 50px; height: 300px; position: absolute; top: 25px; right: 215px;
+                width: 200px; height: 300px;z-index:3;">
+        <div class="container">
+            <input type = 'text' name = 'keyword' id = 'input'>
+            <br />            
+            <button class="btn btn-primary" onclick="input_search()">search</button>
+            <br />
+            <div id='result'></div>
+        </div>
     </div>
 
     <script src="../static/MindFusion.Common.js" type="text/javascript"></script>
