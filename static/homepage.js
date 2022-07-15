@@ -38,7 +38,6 @@ for(let i = 0; i < chooseTopic.length; i++) {
 		if(chooseTopic[i].checked) {
 			$.get( chooseTopic[i].value, function( data ) {
 			var text = data;
-			console.log(text);
 			textarea.value = text;
 			});
 		}
@@ -78,6 +77,7 @@ function input() {
 
 	let p = 3;
 	let error = "";
+	let error_loc = 0;
 	// console.log(str[1]);
 	for (var i = 0; i < n; i++) {
 		let size = 0;
@@ -105,20 +105,60 @@ function input() {
 			zero.push(i);
 		}
 		else {
-
-			if (size%2 != 0) {
-				error = "There are odd numbers of hyphens. ";
+			// debugger
+			if(i == 0 && size != 0) {
+				error = error + "The first line should not have hyphens. You might miss the first line or have extra hyphens for the first line. \n";
+				error_loc = i + 1;
+				error = error + "The error comes from the line " + error_loc + ". ";
+				break;
 			}
 
-			if (str[i][str[i].length - 1] == '?' && size == next_size) {
-				error = error + "Have a question but no answer in the next line. ";
+			if(str[0].indexOf('?') == -1) {
+				error = error + "The first line miss a question mark. \n";
+				error_loc = i;
+				error = error + "The error comes from the line " + error_loc + ". ";
+				break;
+			}
+
+			if(i == 1 && size != 2) {
+				error = error + "The second line should have exact two hyphens. \n";
+				error_loc = i + 1;
+				error = error + "The error comes from the line " + error_loc + ". ";
+				break;
+			}
+
+			// if(i + 1 < n && str[i + 1] == '') {
+			// 	error = error + "There is an empty line. \n";
+			// 	error_loc = i + 2;
+			// 	error = error + "The error comes from the line " + error_loc + ". ";
+			// 	break;
+			// }
+
+			if (size%2 != 0 ) {
+				error = error + "There are odd numbers of hyphens. \n";
+				error_loc = i + 1;
+				error = error + "The error comes from the line " + error_loc + ". ";
+				break;
+			}
+
+			// Check the number of hyphens in the next line so that this kind of error has higher priority than the "no answer". 
+			if (next_size%2 != 0 ) {
+				error = error + "There are odd numbers of hyphens. \n";
+				error_loc = i + 2;
+				error = error + "The error comes from the line " + error_loc + ". ";
+				break;
+			}
+
+			if (str[i][str[i].length - 1] == '?' && size + 2 != next_size) {
+				error = error + "Have a question but no answer or further question in the next line. \n";
+				error_loc = i + 1;
+				error = error + "The error comes from the line " + error_loc + ". ";
+				break;
 			}
 			else if (str[i][str[i].length - 1] != '?' && size < next_size) {
-				error = error + "No question but has answers in the next line (maybe a question mark is missing). ";
-			}
-
-			if (error != "") {
-				error = error + "The error comes from the line " + (i + 1) + ". ";
+				error = error + "No question but has answers in the next line (maybe a question mark is missing in the last line). \n";
+				error_loc = i + 2;
+				error = error + "The error comes from the line " + error_loc + ". ";
 				break;
 			}
 
@@ -135,13 +175,47 @@ function input() {
 		obj[size / 2].push(str[i]);
 	}
 
+
+	// debugger: check if there are same options/answers
+	for(let i = 0; i < arr.length; i++) {
+		let childList = [];
+		if(arr[i].length != 0) {
+			for(let j = 0; j < arr[i].length; j++) {
+				childList.push(str[arr[i][j]]);
+			}
+		}
+
+		if(childList.length !== new Set(childList).size) {
+			error = error + "This question has same answers below. \n";
+			error_loc = i + 1;
+			error = error + "The error comes from the line " + error_loc + ". ";
+			break;
+		}
+	}
+
+
+
 	localStorage.setItem("str-array", JSON.stringify(str));
 	localStorage.setItem("str-hyphens-array", JSON.stringify(str_hyphens));
 	localStorage.setItem("arr-array", JSON.stringify(arr));
 	localStorage.setItem("error", JSON.stringify(error));
 	localStorage.setItem("ifSearch", JSON.stringify('no'));
 	//document.location.href = "tree.html";
-
-	window.location.href = "tree.html";
+	if(error == '') {
+		window.location.href = "tree.html";
+	}
+	else {
+		jump(error_loc);
+		alert("INPUT ERROR: " + error);
+	}
 
 }
+
+function jump(line) {
+  var ta = document.getElementById("input");
+  // For unknown reason, the calculation of lineHeight is not very accurate, so I added 0.9525 as a hyperparameter.
+  var lineHeight = (ta.clientHeight / ta.rows) * 0.9525;
+  var jump = (line - 1) * lineHeight;
+  ta.scrollTop = jump;
+}
+

@@ -8,17 +8,18 @@
     margin-left:auto;
     margin-right:auto;
     width: 8em;
+    overflow: auto;
 }
 
-/* #d1 {
-    overflow-x: hidden;
+#d1 {
+    overflow-x: auto;
     overflow-y: auto;
     margin-left: auto;
     margin-right: auto;
     width: 225px;
     padding-bottom: 25px;
-    height: 100px;
-} */
+    height: 50px;
+}
 
 body {
     font-family: Tahoma;
@@ -51,3 +52,44 @@ a {
 #result p {
     word-break:break-all;
 }
+
+/* .searchbox {
+    background-color: lightgrey;
+    width: 40px;
+    height: 30px;
+    border: 15px solid #90caf9;
+    padding: 50px;
+    margin: 20px;
+    overflow: auto;
+} */
+
+#mydiv {
+    position: absolute;
+    z-index: 9;
+    width: 200px;
+    height: 100px;
+    top: 25px; 
+    right: 215px;
+    background-color: lightgrey;
+    border: 15px solid #90caf9;
+    padding: 50px;
+    overflow: auto;
+    /* 
+    background-color: #f1f1f1;
+    border: 1px solid #d3d3d3;
+    text-align: center; */
+}
+
+#mydivheader {
+    cursor: move;
+    z-index: 10;
+    /* padding: 10px;
+    z-index: 10;
+    background-color: #2196F3;
+    color: #fff; */
+}
+
+/* #searchInput {
+    z-index: 1000;
+} */
+
