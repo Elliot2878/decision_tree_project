@@ -12,8 +12,12 @@ def index():
     f.truncate(0)
     return render_template('index.html')
 
-@app.route('/tree.html')
+@app.route('/tree.html', methods=["POST", "GET"])
 def tree():
+    if request.method == "POST":
+        answer = request.form.get("todo") 
+        print("answer from checkbox" , answer)
+
     return render_template('tree.html')  
 
 @app.route('/root_to_curr', methods=['POST'])

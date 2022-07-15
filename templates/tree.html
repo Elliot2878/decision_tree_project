@@ -11,7 +11,7 @@
 <body>
     <!-- The Diagram component is bound to the canvas element below -->
     <!-- <div style="height: 300px;width: 300px;background-color: azure;"> -->
-    <div style="position: absolute; left: 20px; top: 20px; right: 20px; bottom: 10px; overflow: auto;border: 25px;">
+    <div style="position: absolute; left: 20px; top: 20px; right: 20px; bottom: 10px; overflow: auto; border: 25px;">
         <canvas id="diagram" width="1000px" height="1000px" style="position: absolute; left: 200px;">
             This page requires a browser that supports HTML 5 Canvas element.
         </canvas>
@@ -25,21 +25,24 @@
         </canvas>
     </div>
 
-    <div style="width: 50px; height: 300px; position: absolute; top: 25px; right: 215px;
-                width: 200px; height: 300px;z-index:3;">
-        <div class="container">
+    <!-- Search window -->
+    <!-- style="width: 50px; height: 300px; position: absolute; top: 25px; right: 215px;
+                width: 200px; height: 100px;z-index:3;"  -->
+    <div class="searchbox" id="mydiv">
+        <div id="mydivheader">Click here to move</div>
             <input type = 'text' name = 'keyword' id = 'input'>
             <br />            
             <button class="btn btn-primary" onclick="input_search()">search</button>
             <br />
             <div id='result'></div>
-        </div>
     </div>
 
     <script src="../static/MindFusion.Common.js" type="text/javascript"></script>
     <script src="../static/MindFusion.Diagramming.js" type="text/javascript"></script>
+    <!-- <script src="../static/homepage.js" type="text/javascript"></script> -->
     <script src="../static/tree.js" type="text/javascript"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js" type="text/javascript"></script>
+    <!-- <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script> -->
     <!-- <script src="data.js" type="text/javascript"></script> -->
 </body>
 
