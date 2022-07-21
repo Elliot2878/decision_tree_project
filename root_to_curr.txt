@@ -1,16 +1,27 @@
 
 are you happy?
-
-are you happy?
 --if meh, then get a lollipop. did that help?
-----if not interested, which of these topics are you interested in: myeloma diagnosis, social security card, student visa?
-------if interested in myeloma, DECISIONTREE: https://elliot2878.github.io/decision_tree.github.io/myeloma.txt
-
-are you happy?
+--if meh, then get a lollipop. did that help?
+----if a little, then get another one
 --if meh, then get a lollipop. did that help?
 
 are you happy?
+
+are you happy?
+--if yes, then great
+
+are you happy?
+--if no, then see a shrink
+
+are you happy?
+
+are you happy?
+--if no, then see a shrink
+
+are you happy?
 --if meh, then get a lollipop. did that help?
 
 are you happy?
+--if meh, then get a lollipop. did that help?
+----if a little, then get another one
 --if meh, then get a lollipop. did that help?

@@ -883,3 +883,9 @@ are you happy?
 --------------If High Suspicion, findings must have or be Sensory predominant, Length dependent, Slow progression (years), Bilateral and symmetrical, Antibodies present, Demyelination by EMG/NCS OR intermediate suspicion (not high or low suspicion) AND affecting activities of daily living (ADLs). After observation should be done and NCCN Guidlines for Waldenström Macroglobulinemia/Lymphoplasmacytic Lymphomaa should be followed.
 --------------If Low Suspicion, findings must have or be Motor/pain predominant, Non-length dependent, Rapid progression (weeks to months), Unilateral/asymmetrical, Antibodies not present, No Demyelination by EMG/NCS OR intermediate/high suspicion AND not affecting ADLs. After observation should be done and NCCN Guidlines for Waldenström Macroglobulinemia/Lymphoplasmacytic Lymphomaa should be followed.
 
+
+
+
+
+
+
