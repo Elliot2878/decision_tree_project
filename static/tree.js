@@ -221,8 +221,7 @@ function selectClick(e, sender) {
         if(ifSearch == 'no') {
             printPath(parent, parent_id, child, child_id, true);
         }
-
-
+        
     }
 
 
@@ -837,6 +836,7 @@ function newInput(link, id, ifCheckbox, addIdForCheckbox) {
 
 
 function checkboxAnswers() {
+    deleteNode(currOriginNode.id);
     // save the answers of checkbox
     results = [];
     let checkbox = document.getElementsByClassName('checkbox');
