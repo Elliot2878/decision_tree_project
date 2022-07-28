@@ -33,6 +33,7 @@ var input1 = document.querySelector('input');
 var textarea = document.querySelector('textarea');
 let chooseTopic = document.getElementsByName('chooseTopic');
 
+// This for loop gets the text input from the links provided by the radio choice button
 for(let i = 0; i < chooseTopic.length; i++) {
 	chooseTopic[i].addEventListener('change', () => {
 		if(chooseTopic[i].checked) {
@@ -44,7 +45,7 @@ for(let i = 0; i < chooseTopic.length; i++) {
 	});
 }
 
-
+// This function allows the user to upload the text input in txt format. 
 input1.addEventListener('change', () => {
 	let files = input1.files;
 	if (files.length == 0) return;
@@ -60,6 +61,14 @@ input1.addEventListener('change', () => {
 
 	reader.readAsText(file);
 });
+
+// This function converts the text input to a general tree 
+// It also has a debugger, and it will alert the user if any bugs exist
+// Input: text input in the textarea
+// Output: str is the list containing the the text input line by line without hyphens.
+// str-hyphens is the list containing the text input line by line with hyphens.
+// arr is the 2d array represents a general tree where index is parent id and values are children id
+// set ifSearch to 'no' so that the next page will only show the root node
 function input() {
 	// document.getElementById("undo").style.display = "inline-block";
 	str = $('#input').val().split("\n");
@@ -148,15 +157,16 @@ function input() {
 				error = error + "The error comes from the line " + error_loc + ". ";
 				break;
 			}
-
+			
+			//if(i + 1 < str.length && str[i + 1] != '') {
 			if (str[i][str[i].length - 1] == '?' && size + 2 != next_size) {
 				error = error + "Have a question but no answer or further question in the next line. \n";
 				error_loc = i + 1;
 				error = error + "The error comes from the line " + error_loc + ". ";
 				break;
-			}
+			}			
 			else if (str[i][str[i].length - 1] != '?' && size < next_size) {
-				error = error + "No question but has answers in the next line (maybe a question mark is missing in the last line). \n";
+				error = error + "No question but has answers in this line (maybe a question mark is missing in the last line). \n";
 				error_loc = i + 2;
 				error = error + "The error comes from the line " + error_loc + ". ";
 				break;
@@ -186,7 +196,7 @@ function input() {
 		}
 
 		if(childList.length !== new Set(childList).size) {
-			error = error + "This question has same answers below. \n";
+			error = error + "This question has multiple children with the same answers below. \n";
 			error_loc = i + 1;
 			error = error + "The error comes from the line " + error_loc + ". ";
 			break;
@@ -198,7 +208,7 @@ function input() {
 	localStorage.setItem("str-array", JSON.stringify(str));
 	localStorage.setItem("str-hyphens-array", JSON.stringify(str_hyphens));
 	localStorage.setItem("arr-array", JSON.stringify(arr));
-	localStorage.setItem("error", JSON.stringify(error));
+	//localStorage.setItem("error", JSON.stringify(error));
 	localStorage.setItem("ifSearch", JSON.stringify('no'));
 	//document.location.href = "tree.html";
 	if(error == '') {
@@ -211,6 +221,8 @@ function input() {
 
 }
 
+// This function can jump to the line with bug
+// Input: the line number with bug
 function jump(line) {
   var ta = document.getElementById("input");
   // For unknown reason, the calculation of lineHeight is not very accurate, so I added 0.9525 as a hyperparameter.

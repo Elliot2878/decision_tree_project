@@ -5,7 +5,6 @@ var arr = JSON.parse(localStorage.getItem("arr-array"));
 var key = JSON.parse(localStorage.getItem("search_result"));
 var ifSubtree = JSON.parse(localStorage.getItem("ifSubtree"));
 
-
 // ifSearch will become yes only after the user first search the node 
 // This can prevent the tree.html from auto-selecting the answers even though the user just left the index page. 
 var ifSearch = JSON.parse(localStorage.getItem("ifSearch"));
@@ -25,6 +24,7 @@ var AnimationEvents = MindFusion.Animations.Events;
 // The bx and by control the size of the box.
 // var bx = 65, by = 25;
 var bx = 85, by = 30;
+
 var currId = 0;
 var currOriginNode = null;
 
@@ -37,10 +37,11 @@ else if(ifSearch = 'no') {
 }
 
 let root_key_id = [];
-var prev_line = 1;
 let path_subtree = []; 
 var index = 2; // for auto selecting the answers according to path, it is used in the next option function
 myFunction();
+
+// myFunction generate the root node
 function myFunction() {
     diagram = Diagram.create(document.getElementById("diagram"));
     var Behavior = MindFusion.Diagramming.Behavior;
@@ -73,16 +74,24 @@ function myFunction() {
     var len = str[id].search(',');
     let s = str[0].substring(len + 1, str[0].length);
 
+
     // detect if the text contains link and add hypertext reference to the link
     let s_len = s.search("https");
     let link = s.substring(s_len, s.length);
-    if(s.includes("DOCUMENT")) {
+    if(s.includes("DOCUMENT") || s.includes("DECISIONTREE")) {
         let link_ref = '<a href="' + link + '" target="_blank">' + link + '</a>';
         s = s.substring(0, s_len) + link_ref;
     }
-    // else if(s.includes("DECISIONTREE")) {
 
-    // }
+    // Shrink the node if the text is small. 
+    if(s.length < 40) {
+        by = 20;
+        // document.getElementById('d1').style.paddingBottom = '0px';
+    }
+    else {
+        by = 30;
+        // document.getElementById('d1').style.paddingBottom = '25px';
+    }
 
     if (arr[id].length > 0 && arr[id].length <= 5) {
         var val = `<div id="d1"><p>` + s + `</p></div>` + `<div><select data-interactive="true" data-event-change="selectClick" name= "${id}" class="select" id= "${id}"><option value="none" selected></option>`;
@@ -163,9 +172,6 @@ function myFunction() {
     // console.log("check s: " + s);
     if(s.includes("DECISIONTREE") && ifNewInput == 'yes') {
         newInput(link, id);
-        // console.log("reach new input");
-        // myFunction();
-        // ifNewInput = JSON.parse(localStorage.getItem("ifNewInput"));
     }
 
 }
@@ -175,42 +181,18 @@ function myFunction() {
 let root_id = 0;
 let path_search = [];
 
+// selectClick generate a next node or multple nodes
+// Input: e is everything, sender is the parent node
+// Output: a next node or multple nodes if clicked not sure
 function selectClick(e, sender) {
     // console.log("reach");
     
     var selectControl = sender.getContent().getElementsByTagName("select")[0];
-    //console.log("check id in selectClick: " + selectControl.value);
-    
-    // console.log("check str_hypthens in selectClick: " + str_hyphens);
-    // console.log(selectControl.value);
-    
-    // I updated the code below so that the nodes will not be deleted after the tree receive new input
-    // Find parent node of sender.id
-
-    // let senderParent = 0;
-    // for(let i = 0; i < arr.length; i++) {
-    //     // console.log("check arr: " + arr[i]);
-    //     // console.log("check sender.id: " + sender.id);
-    //     let id = parseInt(sender.id);
-    //     if(arr[i].includes(id) == true) {
-    //         senderParent = i;
-    //         console.log("check senderParent: " + senderParent);
-    //     }
-    // }
-
-    // if(str[selectControl.value].includes("DECISIONTREE") == false) {
-    //     console.log("check haha: " + str[selectControl.value]);
-    //     console.log("reach deleteNode");
     deleteNode(sender.id);
-    // }
     
-    //console.log("parent number: " + sender.id);
-    //console.log("children number: " + selectControl.value);
     if (selectControl.value != "none" && selectControl.value != "NotSure") {
-        // console.log("children number: " + selectControl.value);
         if(str[selectControl.value] != undefined) {
             nextoption(selectControl.value, sender); 
-            // console.log("check arr[0] combine after nextoption: " + arr[0]);
         }
 
         //print path from root to current node
@@ -227,7 +209,6 @@ function selectClick(e, sender) {
 
     else if (selectControl.value == "NotSure") {
         notSure(sender.id, sender);
-
         //print path
         parent = str[sender.id];
         parent_id = sender.id;
@@ -236,33 +217,32 @@ function selectClick(e, sender) {
 
 }
 
+// notSure handles the situation where the user clicks "not sure".
+// Input: id is the id of the parent node, and originNode is the parent node.
+// Output: the funciton generates all children nodes of the parent node. 
 function notSure(id, originNode) {
     var node = new MindFusion.Diagramming.ControlNode(diagram);
     var layout = new MindFusion.Graphs.TreeLayout();
     layout.root = node;
     layout.direction = MindFusion.Graphs.LayoutDirection.TopToBottom;
-    // console.log("check layout.direction: " + layout.direction);
-    // layout.keepRootPosition = true;
+    layout.keepRootPosition = false;
     layout.levelDistance = 10;
     linkType = MindFusion.Graphs.TreeLayoutLinkType.Cascading;
     if (arr[id].length > 0) {
-        // console.log(arr[id].length);
         for (var i = 0; i < arr[id].length; i++) {
 
 
             node = new MindFusion.Diagramming.ControlNode(diagram);
             var ids = arr[id][i];
-            // console.log(ids);
             len = str[ids].search(',');
             s = str[ids].substring(len + 1, str[ids].length);
             
             // detect if the text contains link and add hypertext reference to the link
-            if(s.includes("https")) {
-                let s_len = s.search("https");
-                let link = s.substring(s_len, s.length);
-                let link_ref = '<a href="' + link + '" target="_blank">' + link + '</a>';
-                str[ids] = str[ids].substring(0, len + 1) + s.substring(0, s_len) + link_ref;
-
+            let s_len = s.search("https");
+            let dtlink = s.substring(s_len, s.length);
+            if(s.includes("DOCUMENT") || s.includes("DECISIONTREE")) {
+                let link_ref = '<a href="' + dtlink + '" target="_blank">' + dtlink + '</a>';
+                s = s.substring(0, s_len) + link_ref;
             }
 
             var val = `<div id="d1"><p>` + str[ids] + `</p></div>`;
@@ -280,7 +260,6 @@ function notSure(id, originNode) {
             node.setTemplate(val);
 
             node.setBounds(new Rect(originNode.getBounds().x, originNode.getBounds().y + 60, bx, by));
-            prev_line = s.length/45
             // node.setLocked(true);
             // node.setVisible(false);
             node.setStroke('#003466');
@@ -296,54 +275,40 @@ function notSure(id, originNode) {
 
             // create a larger decision tree for the new input file
             if(s.includes("DECISIONTREE") && ifNewInput == 'yes') {
-                // console.log("check link: " + link);
-                console.log("check str_hyphens combine before the newinput: " + str_hyphens);
-                console.log("check ifNewInput: " + ifNewInput);
-                newInput(link, id);
+                console.log("reach decisiontree");
+                newInput(dtlink, id, true, i);
                 ifNewInput = JSON.parse(localStorage.getItem("ifNewInput"));
-                console.log("check str_hyphens combine after the newInput: " + str_hyphens);
-                // console.log("reach new input");
-
-                // str = JSON.parse(localStorage.getItem("str-array2"));
-                // str_hyphens = JSON.parse(localStorage.getItem("str-hyphens-array2"));
-                // arr = JSON.parse(localStorage.getItem("arr-array2"));
-                // ifSearch = JSON.parse(localStorage.getItem("ifSearch2"));
-                
-                // error = JSON.parse(localStorage.getItem("error2"));
-                
-                // console.log("check id in nextoption: " + id);
-
-                int_id = parseInt(id);
-                nextoption(int_id + 1, node);
             }
+
+
         }
         diagram.arrange(layout);
         diagram.resizeToFitItems(10);
     }
 }
 
+// showCheckbox handles the situation where the nodes have more than 5 options
+// Input: id is the id of the parent node, originNode is the parent node, and results is the list containing the answers of the checkbox
+// Output: generate the multiple children nodes corresponding to the answers of the checkbox
 function showCheckbox(id, originNode, results) {
     var node = new MindFusion.Diagramming.ControlNode(diagram);
     var layout = new MindFusion.Graphs.TreeLayout();
     layout.root = node;
     layout.direction = MindFusion.Graphs.LayoutDirection.TopToBottom;
-    // console.log("check layout.direction: " + layout.direction);
-    // layout.keepRootPosition = true;
+    layout.keepRootPosition = true;
     layout.levelDistance = 10;
     linkType = MindFusion.Graphs.TreeLayoutLinkType.Cascading;
     if (arr[id].length > 0) {
-        // console.log(arr[id].length);
         for (var i = 0; i < arr[id].length; i++) {
 
             if(results.includes(i)) {
                 node = new MindFusion.Diagramming.ControlNode(diagram);
                 var ids = arr[id][i];
-                // console.log(ids);
                 len = str[ids].search(',');
                 s = str[ids].substring(len + 1, str[ids].length);
                 
                 // detect if the text contains link and add hypertext reference to the link
-                // rename link to dtlink(decision tree link) here because we use the name 'link' later for another purpose
+                // rename link to dtlink(decision tree link) here because we use the name 'link' later for arrows
                 let s_len = s.search("https");
                 let dtlink = s.substring(s_len, s.length);
                 if(s.includes("DOCUMENT") || s.includes("DECISIONTREE")) {
@@ -394,10 +359,11 @@ function showCheckbox(id, originNode, results) {
     }
 }
 
+// nextoption is a function to be called when a single answer in the drop-down menu is selected. 
+// Input: id is the id of the parent node, and originNode is the parent node
+// Output: the function generates a single child node. 
 function nextoption(id, originNode) {
     let ifCheckbox = false;
-
-    // console.log("check id in nextoption: " + id);
     var node = new MindFusion.Diagramming.ControlNode(diagram);
     let len = str[id].search(',');
     let s = str[id].substring(len + 1, str[id].length);
@@ -409,9 +375,16 @@ function nextoption(id, originNode) {
         let link_ref = '<a href="' + link + '" target="_blank">' + link + '</a>';
         s = s.substring(0, s_len) + link_ref;
     }
-    // else if(s.includes("DECISIONTREE")) {
 
-    // }
+    // Shrink the node if the text is small. 
+    if(s.length < 40) {
+        by = 20;
+        // document.getElementById('d1').style.paddingBottom = '0px';
+    }
+    else {
+        by = 30;
+        // document.getElementById('d1').style.paddingBottom = '25px';
+    }
 
     var val = `<div id="d1"><p>` + s + `</p></div>`;
     if (arr[id].length > 0 && arr[id].length <= 5) {
@@ -427,14 +400,12 @@ function nextoption(id, originNode) {
     }
     else if(arr[id].length > 5) {
         ifCheckbox = true;
-        // ifNewInput = 'yes';
         val += '<form action="#" method="post" id="checkbox_form"">';
         for (var i = 0; i < arr[id].length; i++) {
             len1 = str[arr[id][i]].search(',');
             s1 = str[arr[id][i]].substring(3, len1);
             val += `<input type="checkbox" name="option" class="checkbox" value="` + arr[id][i] + `" />` + s1 + `<br />`;                    
         }
-        // ${id}, ${originNode}
         // onclick="checkboxAnswers(' + id + ',' + originNode + ');
         val += '<button type="button" id = cb-button class="btn btn-primary" >Submit</button>';
     
@@ -445,7 +416,7 @@ function nextoption(id, originNode) {
     
     
     node.setTemplate(val);
-    node.setBounds(new Rect(originNode.getBounds().x, originNode.getBounds().y + 60 + 5 * prev_line, bx, by));
+    node.setBounds(new Rect(originNode.getBounds().x, originNode.getBounds().y + 60, bx, by));
     node.setId(id);
     
     node.setLocked(true);
@@ -487,6 +458,9 @@ function nextoption(id, originNode) {
     }
 }
 
+// This function can creates animated link
+// Input: originNOde is the parent node, and node is the child node
+// Ouput: animated link
 function createAnimatedLink(originNode, node) {
     var link = new DiagramLink(diagram, originNode, node);
     link.setHeadShape('Triangle');
@@ -495,8 +469,6 @@ function createAnimatedLink(originNode, node) {
     link.setLocked(true);
     diagram.addItem(link);
     
-    // console.log(originNode.id);
-    // console.log(node.id);
     var ep = link.getEndPoint();
     link.setEndPoint(link.getStartPoint());
     var animation = new Animation(link, { fromValue: link.getStartPoint(), toValue: ep, animationType: AnimationType.Bounce, easingType: EasingType.EaseOut, duration: 1000 }, onUpdateLink);
@@ -510,6 +482,9 @@ function createAnimatedLink(originNode, node) {
     animation.start();
 }
 
+// This function can delete the node
+// Input: id is the id of the node that you want to delete
+// Output: a node will be deleted in the UI
 function deleteNode(id) {
 
     var nodes = diagram.nodes.filter(function (p) {
@@ -520,6 +495,10 @@ function deleteNode(id) {
         deleteRecursively(nodes[0].getOutgoingLinks());
     }
 }
+
+// This function can delete multiple siblings recursively
+// Input: links is a list of OutgoingLinks
+// Output: all siblings will be deleted in the UI
 
 function deleteRecursively(links) {
     for (var i = links.length - 1; i >= 0; i--) {
@@ -545,8 +524,11 @@ function onUpdateLink(animation, animationProgress) {
     link.invalidate();
 }
 
-
-function printPath(parent, parent_id, child, child_id, ifsure) {
+// This function print and save the path from root to the current node 
+// Input: parent_id is the id of the parent node, child_id is the id of the child node, ifsure is a boolean that is true when "not sure" is 
+// not clicked and is false when "not sure" is clicked. 
+// Output: a path from root to the current node printed in the console and the path saving in a txt file
+function printPath(parent_id, child_id, ifsure) {
     let save_path = []
     console.log("Path(from root to curr): " + str_hyphens[parent_id] + "\n");
     save_path.push(str_hyphens[parent_id]);
@@ -580,13 +562,14 @@ function printPath(parent, parent_id, child, child_id, ifsure) {
 
 }
 
-
+// findPath gives the path from root to the target node. 
+// Input: root_id is the id of the root which is zero in our case. path is a list to store the path. k is the id of the target node.
+// Output: a boolean variable which is true when the k is found in the tree and false when k is not found in the tree. 
 function findPath(root_id, path, k) {
     // base case
     if(root_id == undefined) {
         return false;
     }
-
     
     path.push(root_id);
 
@@ -606,6 +589,9 @@ function findPath(root_id, path, k) {
 
 }
 
+// subtree is a function that prints the subtree of a node
+// Input: ifSubtree is a boolean variable indicating whether user want to print the subtree. 
+// no output
 function subtree(ifSubtree, node_id) {
     if(ifSubtree == 'no') {
         return;
@@ -623,7 +609,9 @@ function subtree(ifSubtree, node_id) {
 }
 
 
-
+// input_search is a function that gives the results of searching. It allows the user to choose from multiple results.
+// no input 
+// output: show the results in the UI
 function input_search() {
     keyword = $('#input').val()
     result = keywordSearch(keyword);
@@ -635,7 +623,6 @@ function input_search() {
         alert("You did not input any keyword");
     }
     else if(result.length == 1) {
-        // localStorage.setItem("search_result", JSON.stringify(result[0]));
         let text = document.getElementById('result');
         
         text.innerHTML = 'Only one node containing the keyword: <br>';
@@ -662,7 +649,10 @@ function input_search() {
         text.innerHTML += '<button class="btn btn-primary" onclick="submit()">submit</button>';
     }
 }
-    
+
+// keywordSearch is a function that searches the node with keyword line by line
+// Input: keyword
+// Output: a list containing the id of the nodes with keywords. 
 function keywordSearch(key) {
     let loc = [];
     for(let i = 0; i < str_hyphens.length; i++) {
@@ -675,6 +665,10 @@ function keywordSearch(key) {
     return loc;
 }
 
+// submit is a function to be called when the user clicks the submit button
+// it will reload the page and set ifSearch variable to 'yes'. 
+// once the ifSearch becomes 'yes', the page can show the desired node after reloading
+// no input or output
 function submit(){
     let result = document.getElementsByName('search_result');
     for(let i = 0; i < result.length; i++) {
@@ -694,9 +688,14 @@ function submit(){
     window.location.href = "tree.html"; 
 }
 
-
+// newInput handles the situation where the user selects a node containing the "DECISIONTREE" keyword.
+// It wills combine the tree with a new tree.  
+// Input: link is a link containing the new tree. id is the id of the current node. ifCheckbox is a boolean indicating whether the 
+// current node has checkbox. addIdForCheckbox is number that we need to add to the id when the current node has checkbox
+// no output
+// side effect: it needs to reload the page to update the data stored in the previous node. 
+// It uses search function to return to the current node so that the siblings of the current node will disappear. 
 function newInput(link, id, ifCheckbox, addIdForCheckbox) {
-	// document.getElementById("undo").style.display = "inline-block";
     // add new input into str, str-hyphens, obj, vec, and arr. 
     // The code inside the "get" seems run in a wierd order. The str and str_hyphens will belong to new input as long as you are in the "get". 
     // That is why I store str anfd str_hyphens in new variable first.    
@@ -706,7 +705,6 @@ function newInput(link, id, ifCheckbox, addIdForCheckbox) {
     id = parseInt(id);
     $.get( link, function( data) {
 
-        // console.log("check str combine in newInput: " + str);
         let str_old = [];
         let arr_get = [];
         var str2 = [];
@@ -736,15 +734,7 @@ function newInput(link, id, ifCheckbox, addIdForCheckbox) {
             str_hyphens2[i] = more_hyphens.concat(str_hyphens2[i]);
         }
 
-
-
         str_hyphens_old = str_hyphens_old.filter(n => n);
-        
-        // for(let i = 0; i < str_hyphens_old.length; i++) {
-        //     console.log(i + ": " + str_hyphens_old[i]);
-        // }
-
-
 
         let left = [];
         let right = [];
@@ -755,13 +745,6 @@ function newInput(link, id, ifCheckbox, addIdForCheckbox) {
         for(let i = id + 1; i < str_hyphens_old.length; i++) {
             right.push(str_hyphens_old[i]);
         }
-
-        // left = str_hyphens_old.slice(0, id + 1);
-        // right = str_hyphens_old.slice(id + 1, str2.length);
-        
-        // console.log("check id: " + id);
-        // console.log("check left: " + left);
-        // console.log("check right: " + right);
         
         str_hyphens = left.concat(str_hyphens2);
         str_hyphens = str_hyphens.concat(right);    
@@ -776,10 +759,7 @@ function newInput(link, id, ifCheckbox, addIdForCheckbox) {
             arr_get[i] = new Array(0);
         }
     
-        // console.log("check n in newInput: " + n);
-    
         let error = "";
-        // console.log(str[1]);
         for (var i = 0; i < n; i++) {
             let size = 0;
     
@@ -800,7 +780,6 @@ function newInput(link, id, ifCheckbox, addIdForCheckbox) {
     
             vec[size / 2] = i;
             if (size == 0) {
-                // arr_get[0].push(i);
                 zero.push(i);
             }
             else {
@@ -814,13 +793,6 @@ function newInput(link, id, ifCheckbox, addIdForCheckbox) {
             obj[size / 2].push(str_old[i]);
         }
         
-        
-        
-        // console.log("check arr in newInput: " + arr[0]);
-       
-        // console.log("check str_old combine in newInput: " + str_old);
-        // console.log("check str_hyphens combine in newInput: " + str_hyphens);
-        
         localStorage.setItem("str-array", JSON.stringify(str_old));
         localStorage.setItem("str-hyphens-array", JSON.stringify(str_hyphens));
         localStorage.setItem("arr-array", JSON.stringify(arr_get));
@@ -831,10 +803,10 @@ function newInput(link, id, ifCheckbox, addIdForCheckbox) {
         
     });
     
-    // console.log("check str_hyphens combine in newInput2 out of get: " + str_hyphens);
 }
 
-
+// This function saves the answers of checkbox and calls showCheckbox function to show the corresponding children nodes. 
+// no input or output
 function checkboxAnswers() {
     deleteNode(currOriginNode.id);
     // save the answers of checkbox
@@ -842,24 +814,19 @@ function checkboxAnswers() {
     let checkbox = document.getElementsByClassName('checkbox');
     for(let i = 0; i < checkbox.length; i++) {
         if(checkbox[i].checked == true) {
-            // checkBox[i].value 
-            //console.log(i + " is checked");
             results.push(i);
         }
-        else{
-            //console.log(i + " is not checked");
-        }
     }
-
-    //console.log(results);
     showCheckbox(currId, currOriginNode, results);
 
 }
 
 
-// Make the Search Window draggable
 dragElement(document.getElementById("mydiv"));
 
+// This function makes the search window draggable
+// Input: the html element needed to be draggable
+// no output
 function dragElement(elmnt) {
   var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
   if (document.getElementById(elmnt.id + "header")) {
@@ -870,6 +837,9 @@ function dragElement(elmnt) {
     elmnt.onmousedown = dragMouseDown;
   }
 
+  // This function gets the mouse cursor position and calls elementDrag function
+  // Input: everything
+  // no output
   function dragMouseDown(e) {
     e = e || window.event;
     e.preventDefault();
@@ -881,6 +851,9 @@ function dragElement(elmnt) {
     document.onmousemove = elementDrag;
   }
 
+  // This function calculate the new cursor position and set the html element new position
+  // Input: everything
+  // no output
   function elementDrag(e) {
     e = e || window.event;
     e.preventDefault();
@@ -894,8 +867,8 @@ function dragElement(elmnt) {
     elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
   }
 
+  // This function stops moving the element when mouse button is release
   function closeDragElement() {
-    // stop moving when mouse button is released:
     document.onmouseup = null;
     document.onmousemove = null;
   }
