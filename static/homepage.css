@@ -1,8 +1,10 @@
 .mf_diagram_controlNodeContent {
     box-shadow: rgba(0, 52, 102, 0.35) 4px 4px 4px;
     text-align: center;
-    border: 1px solid #648dae;
-    background-color: #cce6ff !important;
+    /* border: 1px solid #648dae;
+    background-color: #cce6ff !important; */
+    border: 1px solid #eecda1;
+    background-color: #eecda1 !important;
 }
 
 #d1 {
@@ -51,7 +53,8 @@ td {
     margin-bottom: 20px;
     /* margin-top: 40px; */
     width: 80%;
-    background-color: #648dae;
+    /* background-color: #648dae; */
+    background-color: #d2b48c;
 }
 
 /* On mouse-over, add a deeper shadow */
