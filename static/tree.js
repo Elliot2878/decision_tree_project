@@ -225,8 +225,8 @@ function notSure(id, originNode) {
     var layout = new MindFusion.Graphs.TreeLayout();
     layout.root = node;
     layout.direction = MindFusion.Graphs.LayoutDirection.TopToBottom;
-    layout.keepRootPosition = false;
-    layout.levelDistance = 10;
+    layout.keepRootPosition = true;
+    layout.levelDistance = 20;
     linkType = MindFusion.Graphs.TreeLayoutLinkType.Cascading;
     if (arr[id].length > 0) {
         for (var i = 0; i < arr[id].length; i++) {

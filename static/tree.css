@@ -7,7 +7,6 @@
 
     /* border: 1px solid #648dae; */
     background-color: #eecda1 !important;
-
     display: block;
     margin-left:auto;
     margin-right:auto;
@@ -19,14 +18,10 @@
     overflow: auto;
 }
 
-.mf_diagram_controlNodesContainer {
+/* .mf_diagram_controlNodesContainer {
     width: 3080px !important; 
     height: 3080px !important;
-}
-
-#diagram {
-    border-radius: 25px;
-}
+} */
 
 #d1 {
     overflow-x: auto;
@@ -34,6 +29,7 @@
     margin-left: auto;
     margin-right: auto;
     width: 225px;
+    padding-bottom: 5px;
     /* padding-bottom: 25px; */
     height: 50px;
 }
@@ -82,7 +78,7 @@ a {
 
 #mydiv {
     position: absolute;
-    z-index: 9;
+    z-index: 90;
     width: 200px;
     height: 100px;
     top: 25px; 
@@ -101,7 +97,7 @@ a {
 
 #mydivheader {
     cursor: move;
-    z-index: 10;
+    z-index: 91;
     /* padding: 10px;
     z-index: 10;
     background-color: #2196F3;
