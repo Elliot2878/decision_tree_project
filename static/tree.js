@@ -28,6 +28,7 @@ var bx = 85, by = 30;
 var currId = 0;
 var currOriginNode = null;
 
+
 let ifNewInput = '';
 if(ifSearch == 'yes' ) {
     ifNewInput = 'no';
@@ -386,80 +387,185 @@ function nextoption(id, originNode) {
         // document.getElementById('d1').style.paddingBottom = '25px';
     }
 
-    var val = `<div id="d1"><p>` + s + `</p></div>`;
-    if (arr[id].length > 0 && arr[id].length <= 5) {
-        val += `<div><select data-interactive="true" data-event-change="selectClick" name= "${id}" class="select" id= "${id}"><option value="none" selected></option>`;
-        for (var i = 0; i < arr[id].length; i++) {
+    // detect and handle sql query
+    if(s.includes("SQL")) {
+        // We need this myCallback function because the code in ajax runs asynchronously. 
+        // We use this function to help receive the result from python
+        function myCallback(sql_result) {
 
-            len1 = str[arr[id][i]].search(',');
-            s1 = str[arr[id][i]].substring(3, len1);
-            val += `<option value=` + arr[id][i] + `>` + s1 + `</option>`;
+            console.log("check sql_result[1]: "  + sql_result[1]);
+            
+            let sql_result_list = [];
+            let hasResult = true;
+            while(sql_result[1].length > 9) { // > 9 because we have \n <\div> in the end
+                let len3 = sql_result[1].indexOf("("); // the data is in data[1] instead of data[0] for some reason
+                let len4 = sql_result[1].indexOf(")");
+                if(len3 == -1 || len4 == -1) {
+                    hasResult = false;
+                    break; // that means there is no result
+                }
+                let test = sql_result[1].substring(len3 + 1, len4).split(', ');
+                console.log("test: " + test);
+                sql_result_list.push(test);
+                sql_result[1] = sql_result[1].substring(len4 + 1, sql_result[1].length);
+                console.log("check sql_result for each loop: " + sql_result[1]);
+            }
+
+            if(hasResult == true) {
+                console.log("check sql_result_list: " + sql_result_list[0]);
+                let ifPlural1 = sql_result_list.length > 1 ? "houses " : "house ";
+                let ifPlural2 =  sql_result_list.length > 1 ? "meet " : "meets ";
+                let ifPlural3 =  sql_result_list.length > 1 ? "are " : "is ";
+                s = "The " + ifPlural1 + ifPlural2 +  "your need " + ifPlural3 + ": " + sql_result_list[0][1];
+                for(let i = 1; i < sql_result_list.length; i++) {
+                    s = s + ', ' + sql_result_list[i][1];
+                }
+            }
+            else if(ifSearch != 'yes'){ 
+                // If there is no result
+                // ifSearch != 'yes' because when users search sql command in the node, the desire answer should not be the string below.
+                // this can be trivial because users usually don't want to search the sql command which will be replaced with more readable string answers. 
+                s = "Sorry, there is no house meeting your need. Please change your answers.";
+            }
+
+            console.log("check s in get_sql_result: " + s);
+            var val = `<div id="d1"><p>` + s + `</p></div>`;
+            if (arr[id].length > 0 && arr[id].length <= 5) {
+                val += `<div><select data-interactive="true" data-event-change="selectClick" name= "${id}" class="select" id= "${id}"><option value="none" selected></option>`;
+                for (var i = 0; i < arr[id].length; i++) {
+                    
+                    len1 = str[arr[id][i]].search(',');
+                    s1 = str[arr[id][i]].substring(3, len1);
+                    val += `<option value=` + arr[id][i] + `>` + s1 + `</option>`;
+                }
+                val += `<option value="NotSure">NotSure</option>`;
+                val += `</select></div>`;
+            }
+            else if(arr[id].length > 5) {
+                ifCheckbox = true;
+                val += '<form action="#" method="post" id="checkbox_form"">';
+                for (var i = 0; i < arr[id].length; i++) {
+                    len1 = str[arr[id][i]].search(',');
+                    s1 = str[arr[id][i]].substring(3, len1);
+                    val += `<input type="checkbox" name="option" class="checkbox" value="` + arr[id][i] + `" />` + s1 + `<br />`;                    
+                }
+                // onclick="checkboxAnswers(' + id + ',' + originNode + ');
+                val += '<button type="button" id = cb-button class="btn btn-primary" >Submit</button>';
+
+                val += '</form>';
+            }
+            
+            node.setTemplate(val);
+            node.setBounds(new Rect(originNode.getBounds().x, originNode.getBounds().y + 60, bx, by));
+            node.setId(id);
+            
+            node.setLocked(true);
+            node.setVisible(true); // I changed it from false to true for auto selecting the answers according to path
+            
+            diagram.addItem(node);
+            createAnimatedLink(originNode, node);
+            diagram.resizeToFitItems(10);
         }
-        val += `<option value="NotSure">NotSure</option>`;
-        val += `</select></div>`;
-    }
-    else if(arr[id].length > 5) {
-        ifCheckbox = true;
-        val += '<form action="#" method="post" id="checkbox_form"">';
-        for (var i = 0; i < arr[id].length; i++) {
-            len1 = str[arr[id][i]].search(',');
-            s1 = str[arr[id][i]].substring(3, len1);
-            val += `<input type="checkbox" name="option" class="checkbox" value="` + arr[id][i] + `" />` + s1 + `<br />`;                    
-        }
-        // onclick="checkboxAnswers(' + id + ',' + originNode + ');
-        val += '<button type="button" id = cb-button class="btn btn-primary" >Submit</button>';
-    
         
-        val += '</form>';
-    }
-    
-    
-    
-    node.setTemplate(val);
-    node.setBounds(new Rect(originNode.getBounds().x, originNode.getBounds().y + 60, bx, by));
-    node.setId(id);
-    
-    node.setLocked(true);
-    node.setVisible(true); // I changed it from false to true for auto selecting the answers according to path
-    
-    diagram.addItem(node);
-    createAnimatedLink(originNode, node);
-    diagram.resizeToFitItems(10);
-    
-    // submit the checkbox answers
-    if(arr[id].length > 5) {
-        var o = document.getElementById("cb-button");
-        console.log("check o: " + o);
-        currId = id;
-        currOriginNode = node;
-        o.onclick = checkboxAnswers;
+        get_sql_result(myCallback);
+
+        function get_sql_result(callback) { 
+            let len2 = s.search('SQL:');
+            let query = s.substring(len2 + 5, s.length); // plus 5 to skip 'SQL: ' 
+            console.log(query);
+            let query_list = [];
+            query_list.push(query);
+            let query_dic = Object.assign({}, query_list);
+            const s2 = JSON.stringify(query_dic);
+            $.ajax({
+                url:"/get_sql",
+                type:"POST",
+                contentType:"application/json",
+                data: JSON.stringify(s2),
+                success: callback,
+            });
+        }
+
+    }    
+    else {
+        var val = `<div id="d1"><p>` + s + `</p></div>`;
+        if (arr[id].length > 0 && arr[id].length <= 5) {
+            val += `<div><select data-interactive="true" data-event-change="selectClick" name= "${id}" class="select" id= "${id}"><option value="none" selected></option>`;
+            for (var i = 0; i < arr[id].length; i++) {
+                
+                len1 = str[arr[id][i]].search(',');
+                s1 = str[arr[id][i]].substring(3, len1);
+                val += `<option value=` + arr[id][i] + `>` + s1 + `</option>`;
+            }
+            val += `<option value="NotSure">NotSure</option>`;
+            val += `</select></div>`;
+        }
+        else if(arr[id].length > 5) {
+            ifCheckbox = true;
+            val += '<form action="#" method="post" id="checkbox_form"">';
+            for (var i = 0; i < arr[id].length; i++) {
+                len1 = str[arr[id][i]].search(',');
+                s1 = str[arr[id][i]].substring(3, len1);
+                val += `<input type="checkbox" name="option" class="checkbox" value="` + arr[id][i] + `" />` + s1 + `<br />`;                    
+            }
+            // onclick="checkboxAnswers(' + id + ',' + originNode + ');
+            val += '<button type="button" id = cb-button class="btn btn-primary" >Submit</button>';
+        
+            
+            val += '</form>';
+        }
+        
+        
+        
+        node.setTemplate(val);
+        node.setBounds(new Rect(originNode.getBounds().x, originNode.getBounds().y + 60, bx, by));
+        node.setId(id);
+        
+        node.setLocked(true);
+        node.setVisible(true); // I changed it from false to true for auto selecting the answers according to path
+        
+        diagram.addItem(node);
+        createAnimatedLink(originNode, node);
+        diagram.resizeToFitItems(10);
+        
+        // submit the checkbox answers
+        if(arr[id].length > 5) {
+            var o = document.getElementById("cb-button");
+            console.log("check o: " + o);
+            currId = id;
+            currOriginNode = node;
+            o.onclick = checkboxAnswers;
+        }
+
+        //auto select along the path
+        if(arr[id].length !=  0 && ifSearch == 'yes' && index < root_key_id.length) {
+            id_str = id.toString();
+            $('#' + id_str).val(root_key_id[index]);
+            index = index + 1;
+            if(ifCheckbox == false) {
+                // 0 has no meaning. It is just the 'e' standing for everything
+                selectClick(0, node);
+            }
+            else if(ifCheckbox == true) {
+                let results = [];
+                results.push(root_key_id[index - 1] - parseInt(id) - 1);
+                showCheckbox(id, node, results);
+            }
+        }
+
+        // create a larger decision tree for the new input file
+        if(s.includes("DECISIONTREE") && ifNewInput == 'yes') {
+            newInput(link, id, false, 0);
+            ifNewInput = JSON.parse(localStorage.getItem("ifNewInput"));
+        }
     }
 
-    //auto select along the path
-    if(arr[id].length !=  0 && ifSearch == 'yes' && index < root_key_id.length) {
-        id_str = id.toString();
-        $('#' + id_str).val(root_key_id[index]);
-        index = index + 1;
-        if(ifCheckbox == false) {
-            // 0 has no meaning. It is just the 'e' standing for everything
-            selectClick(0, node);
-        }
-        else if(ifCheckbox == true) {
-            let results = [];
-            results.push(root_key_id[index - 1] - parseInt(id) - 1);
-            showCheckbox(id, node, results);
-        }
-    }
 
-    // create a larger decision tree for the new input file
-    if(s.includes("DECISIONTREE") && ifNewInput == 'yes') {
-        newInput(link, id, false, 0);
-        ifNewInput = JSON.parse(localStorage.getItem("ifNewInput"));
-    }
+
 }
 
 // This function can creates animated link
-// Input: originNOde is the parent node, and node is the child node
+// Input: originNode is the parent node, and node is the child node
 // Ouput: animated link
 function createAnimatedLink(originNode, node) {
     var link = new DiagramLink(diagram, originNode, node);
@@ -872,6 +978,20 @@ function dragElement(elmnt) {
     document.onmouseup = null;
     document.onmousemove = null;
   }
+}
+
+// This function can help pass the result in ajax to javascript
+// Input: the sql result in ajax
+function updateSQLResult(result_in_ajax) {
+    sql_result = result_in_ajax[1];
+    if(sql_result.includes('&#39;')) {
+        let len5 = sql_result.indexOf('&#39;');
+        let len6 = sql_result.indexOf('&#39;', 4);
+        sql_result = sql_result.substring(len5 + 5, len6);
+
+    }
+
+    console.log("check result in help function: " + sql_result);
 }
 
 

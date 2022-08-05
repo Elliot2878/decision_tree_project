@@ -1,8 +1,8 @@
 import json
+import sqlite3
 from flask import request
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 app = Flask(__name__)
-
 
 
 @app.route('/')
@@ -73,6 +73,57 @@ def get_subtree():
     
     f.write('\n')
     return result
+
+@app.route('/get_sql', methods=['POST'])
+def get_sql():
+    output = request.get_json()
+    print(output)
+    print(type(output))
+    result = json.loads(output)
+    print(result)
+    print(type(result))
+ 
+    # connecting to the database
+    connection = sqlite3.connect("dt.db")
+    
+    # cursor
+    crsr = connection.cursor()
+    
+    # print statement will execute if there
+    # are no errors
+    print("Connected to the database")
+    
+    # # SQL command to create a table in the database
+    # sql_command = """CREATE TABLE houses (
+    # house_number INTEGER PRIMARY KEY,
+    # house_name VARCHAR(30),
+    # num_of_bedrooms INTEGER,
+    # square_feet INTEGER,
+    # swimming_pool CHAR(1));"""
+    # crsr.execute(sql_command)
+
+    # # SQL command to insert the data in the table
+    # sql_command = """INSERT INTO houses VALUES (1, "Goddard Hall", 1, 1600, 'N');"""
+    # crsr.execute(sql_command)
+    
+    # # another SQL command to insert the data in the table
+    # sql_command = """INSERT INTO houses VALUES (2, "Palladium Hall", 2, 3100, 'Y');"""
+    # crsr.execute(sql_command)
+
+    # # another SQL command to insert the data in the table
+    # sql_command = """INSERT INTO houses VALUES (3, "Lipton Hall", 3, 3300, 'N');"""
+    # crsr.execute(sql_command)
+
+    crsr.execute(result['0'])
+    sql_ans = crsr.fetchall()
+
+    for i in sql_ans:
+        print(i)
+    
+    # close the connection
+    connection.close()
+
+    return jsonify('', render_template('sql.html', x = sql_ans))
 
 
 

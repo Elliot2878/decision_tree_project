@@ -1,5 +1,40 @@
-are you happy?
---if yes, then great
+how many bedrooms you need?
+--if one, how many square feet?
+----if between 1500 to 3000, do you want a swimming pool?
+------if yes, SQL: select * from houses where num_of_bedrooms = 1  and square_feet > 1500 and square_feet < 3000 and swimming_pool = 'Y'; 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
