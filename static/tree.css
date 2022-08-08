@@ -14,7 +14,7 @@
     /* left: 289.795px !important;
     width: 375.26px !important; */
     /* border: 5px solid #eecda1; */
-    border-radius: 25px;
+    /* border-radius: 25px; */
     overflow: auto;
 }
 
@@ -23,15 +23,28 @@
     height: 3080px !important;
 } */
 
+
+/* Two styles below ensures the scrollbar is visible */
+::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 7px;
+}
+  
+::-webkit-scrollbar-thumb {
+border-radius: 4px;
+background-color: rgba(0, 0, 0, .5);
+box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+}
+
 #d1 {
-    overflow-x: auto;
-    overflow-y: auto;
+    overflow-x: hidden;
+    overflow-y: scroll;
     margin-left: auto;
     margin-right: auto;
     width: 225px;
-    padding-bottom: 5px;
-    /* padding-bottom: 25px; */
     height: 50px;
+    padding-top: 5px;
+    /* padding-bottom: 25px; */
 }
 
 body {
