@@ -605,7 +605,6 @@ function deleteNode(id) {
 // This function can delete multiple siblings recursively
 // Input: links is a list of OutgoingLinks
 // Output: all siblings will be deleted in the UI
-
 function deleteRecursively(links) {
     for (var i = links.length - 1; i >= 0; i--) {
         var node = links[i].getDestination();
