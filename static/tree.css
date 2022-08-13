@@ -15,7 +15,7 @@
     width: 375.26px !important; */
     /* border: 5px solid #eecda1; */
     /* border-radius: 25px; */
-    overflow: auto;
+    overflow-y: auto !important;
 }
 
 /* .mf_diagram_controlNodesContainer {

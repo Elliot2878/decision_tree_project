@@ -65,7 +65,7 @@ def get_subtree():
     print(result)
     print(type(result))
 
-    f = open('root_to_keyword.txt', 'a')
+    f = open('root_to_keyword.txt', 'w')
     for i in range(len(result)):
         i_str = str(i)
         f.write(result[i_str])
@@ -73,6 +73,7 @@ def get_subtree():
     
     f.write('\n')
     return result
+
 
 @app.route('/get_sql', methods=['POST'])
 def get_sql():

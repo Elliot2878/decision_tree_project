@@ -23,7 +23,7 @@ var EasingType = MindFusion.Animations.EasingType;
 var AnimationEvents = MindFusion.Animations.Events;
 // The bx and by control the size of the box.
 // var bx = 65, by = 25;
-var bx = 85, by = 30;
+var bx = 87, by = 30;
 
 var currId = 0;
 var currOriginNode = null;
@@ -39,10 +39,13 @@ else if(ifSearch = 'no') {
 
 let root_key_id = [];
 let path_subtree = []; 
+let path_and_subtree = [];
 var index = 2; // for auto selecting the answers according to path, it is used in the next option function
 myFunction();
 
 // myFunction generate the root node
+// myFunction is called whenever the page is loaded
+// No input or output
 function myFunction() {
     diagram = Diagram.create(document.getElementById("diagram"));
     var Behavior = MindFusion.Diagramming.Behavior;
@@ -86,7 +89,7 @@ function myFunction() {
 
     // Shrink the node if the text is small. 
     if(s.length < 40) {
-        by = 20;
+        by = 22;
         // document.getElementById('d1').style.paddingBottom = '0px';
     }
     else {
@@ -132,48 +135,77 @@ function myFunction() {
         let root_key = [];
         for(let i = 0; i < root_key_id.length; i++) {
             root_key.push(str_hyphens[root_key_id[i]]);
+            path_and_subtree.push(root_key_id[i]);
         }
 
-        console.log("search path (from root to keyword with or without subtree): ");
-        for(let i = 0; i < root_key.length; i++) {
-            console.log(root_key[i] + '\n');
+
+        if(ifSubtree == 'no') {    
+            console.log("search path (from root to keyword): ");
+            for(let i = 0; i < root_key.length; i++) {
+                console.log(root_key[i] + '\n');
+            }
+            
+            // for passing values to python
+            let root_key_dic = Object.assign({}, root_key);
+            const s_test = JSON.stringify(root_key_dic);
+            $.ajax({
+                url:"/root_to_keyword",
+                type:"POST",
+                contentType:"application/json",
+                data: JSON.stringify(s_test),
+            });
         }
-        
-        // for passing values to python
-        let root_key_dic = Object.assign({}, root_key);
-        const s_test = JSON.stringify(root_key_dic);
-        $.ajax({
-            url:"/root_to_keyword",
-            type:"POST",
-            contentType:"application/json",
-            data: JSON.stringify(s_test),
-        });
-        // get subtree
-        subtree(ifSubtree, key); // this function will fill up the path_subtree
-    }
-        
+        else if(ifSubtree == 'yes') {
+            console.log("subtree: ");
 
-    let path_subtree_dic = Object.assign({}, path_subtree );
-    const s2 = JSON.stringify(path_subtree_dic);
-    $.ajax({
-        url:"/get_subtree",
-        type:"POST",
-        contentType:"application/json",
-        data: JSON.stringify(s2),
-    });
+            // get subtree
+            subtree(ifSubtree, key); // this function will fill up the path_subtree
+    
+            let path_subtree_dic = Object.assign({}, path_subtree );
+            const s2 = JSON.stringify(path_subtree_dic);
+            $.ajax({
+                url:"/get_subtree",
+                type:"POST",
+                contentType:"application/json",
+                data: JSON.stringify(s2),
+            });
+        }
+        else {
+            console.log("other nodes: ");
+            subtree(ifSubtree, key); //you need to store the subtree id in the list path_and_subtree.
 
-    // console.log("check root_key_id: " + root_key_id);
-    // auto select by root_key_id
-    if(ifSearch == 'yes') {
+            let other = [];
+            for(let i = 0; i < str_hyphens.length; i++) {
+                if(path_and_subtree.includes(i) == false) {
+                    console.log(str_hyphens[i]);
+                    other.push(str_hyphens[i]);
+                }
+            }
+
+            let other_dic = Object.assign({}, other );
+            const s2 = JSON.stringify(other_dic);
+            $.ajax({
+                url:"/get_subtree",
+                type:"POST",
+                contentType:"application/json",
+                data: JSON.stringify(s2),
+            });
+        }
+    
+        // console.log("check root_key_id: " + root_key_id);
+        // auto select by root_key_id
         $('.select').val(root_key_id[1]);
         selectClick(0, node);
+
+        
+        // create new node for the new input file
+        // console.log("check s: " + s);
     }
     
-    // create new node for the new input file
-    // console.log("check s: " + s);
     if(s.includes("DECISIONTREE") && ifNewInput == 'yes') {
         newInput(link, id);
     }
+
 
 }
 
@@ -182,9 +214,11 @@ function myFunction() {
 let root_id = 0;
 let path_search = [];
 
-// selectClick generate a next node or multple nodes
-// Input: e is everything, sender is the parent node
-// Output: a next node or multple nodes if clicked not sure
+// selectClick is a driver function for 'nextoption' which generates a next box and 'notSure' which generates multple next boxes
+// it is called whenver the users select an answer in the drop-down menu.
+// It will call 'nextoption' or 'notSure' function
+// Input: sender is the current box object
+// No output
 function selectClick(e, sender) {
     // console.log("reach");
     
@@ -202,7 +236,7 @@ function selectClick(e, sender) {
         child = str[selectControl.value];
         child_id = selectControl.value;
         if(ifSearch == 'no') {
-            printPath(parent, parent_id, child, child_id, true);
+            printPath(parent_id, child_id, true);
         }
         
     }
@@ -213,156 +247,17 @@ function selectClick(e, sender) {
         //print path
         parent = str[sender.id];
         parent_id = sender.id;
-        printPath(parent, parent_id, "all", -1, false);
+        printPath(parent_id, -1, false);
     }
 
 }
 
-// notSure handles the situation where the user clicks "not sure".
-// Input: id is the id of the parent node, and originNode is the parent node.
-// Output: the funciton generates all children nodes of the parent node. 
-function notSure(id, originNode) {
-    var node = new MindFusion.Diagramming.ControlNode(diagram);
-    var layout = new MindFusion.Graphs.TreeLayout();
-    layout.root = node;
-    layout.direction = MindFusion.Graphs.LayoutDirection.TopToBottom;
-    layout.keepRootPosition = true;
-    layout.levelDistance = 20;
-    linkType = MindFusion.Graphs.TreeLayoutLinkType.Cascading;
-    if (arr[id].length > 0) {
-        for (var i = 0; i < arr[id].length; i++) {
 
-
-            node = new MindFusion.Diagramming.ControlNode(diagram);
-            var ids = arr[id][i];
-            len = str[ids].search(',');
-            s = str[ids].substring(len + 1, str[ids].length);
-            
-            // detect if the text contains link and add hypertext reference to the link
-            let s_len = s.search("https");
-            let dtlink = s.substring(s_len, s.length);
-            if(s.includes("DOCUMENT") || s.includes("DECISIONTREE")) {
-                let link_ref = '<a href="' + dtlink + '" target="_blank">' + dtlink + '</a>';
-                s = s.substring(0, s_len) + link_ref;
-            }
-
-            var val = `<div id="d1"><p>` + str[ids] + `</p></div>`;
-            if (arr[ids].length > 0) {
-                val += `<div><select data-interactive="true" data-event-change="selectClick" name= "${ids}" id= "${ids}"><option value="none" selected></option>`;
-                for (var j = 0; j < arr[ids].length; j++) {
-
-                    len1 = str[arr[ids][j]].search(',');
-                    s1 = str[arr[ids][j]].substring(3, len1);
-                    val += `<option value=` + arr[ids][j] + `>` + s1 + `</option>`;
-                }
-                val += `<option value="NotSure">NotSure</option>`;
-                val += `</select></div>`;
-            }
-            node.setTemplate(val);
-
-            node.setBounds(new Rect(originNode.getBounds().x, originNode.getBounds().y + 60, bx, by));
-            // node.setLocked(true);
-            // node.setVisible(false);
-            node.setStroke('#003466');
-            node.setId(ids);
-            diagram.addItem(node);
-            var link = new DiagramLink(diagram, originNode, node);
-            link.setHeadShape('Triangle');
-            link.setHeadBrush('#003466');
-            link.setStroke('#003466');
-            link.setLocked(true);
-            diagram.addItem(link);
-            // createAnimatedLink(originNode, node);
-
-            // create a larger decision tree for the new input file
-            if(s.includes("DECISIONTREE") && ifNewInput == 'yes') {
-                console.log("reach decisiontree");
-                newInput(dtlink, id, true, i);
-                ifNewInput = JSON.parse(localStorage.getItem("ifNewInput"));
-            }
-
-
-        }
-        diagram.arrange(layout);
-        diagram.resizeToFitItems(10);
-    }
-}
-
-// showCheckbox handles the situation where the nodes have more than 5 options
-// Input: id is the id of the parent node, originNode is the parent node, and results is the list containing the answers of the checkbox
-// Output: generate the multiple children nodes corresponding to the answers of the checkbox
-function showCheckbox(id, originNode, results) {
-    var node = new MindFusion.Diagramming.ControlNode(diagram);
-    var layout = new MindFusion.Graphs.TreeLayout();
-    layout.root = node;
-    layout.direction = MindFusion.Graphs.LayoutDirection.TopToBottom;
-    layout.keepRootPosition = true;
-    layout.levelDistance = 10;
-    linkType = MindFusion.Graphs.TreeLayoutLinkType.Cascading;
-    if (arr[id].length > 0) {
-        for (var i = 0; i < arr[id].length; i++) {
-
-            if(results.includes(i)) {
-                node = new MindFusion.Diagramming.ControlNode(diagram);
-                var ids = arr[id][i];
-                len = str[ids].search(',');
-                s = str[ids].substring(len + 1, str[ids].length);
-                
-                // detect if the text contains link and add hypertext reference to the link
-                // rename link to dtlink(decision tree link) here because we use the name 'link' later for arrows
-                let s_len = s.search("https");
-                let dtlink = s.substring(s_len, s.length);
-                if(s.includes("DOCUMENT") || s.includes("DECISIONTREE")) {
-                    let link_ref = '<a href="' + dtlink + '" target="_blank">' + dtlink + '</a>';
-                    s = s.substring(0, s_len) + link_ref;
-                }
-
-                // str[ids]
-                var val = `<div id="d1"><p>` + s + `</p></div>`;
-                if (arr[ids].length > 0) {
-                    val += `<div><select data-interactive="true" data-event-change="selectClick" name= "${ids}" id= "${ids}"><option value="none" selected></option>`;
-                    for (var j = 0; j < arr[ids].length; j++) {
-                        len1 = str[arr[ids][j]].search(',');
-                        s1 = str[arr[ids][j]].substring(3, len1);
-                        val += `<option value=` + arr[ids][j] + `>` + s1 + `</option>`;
-                    }
-                    val += `<option value="NotSure">NotSure</option>`;
-                    val += `</select></div>`;
-                }
-                node.setTemplate(val);
-
-                node.setBounds(new Rect(originNode.getBounds().x, originNode.getBounds().y + 60, bx, by));
-                // node.setLocked(true);
-                // node.setVisible(false);
-                node.setStroke('#003466');
-                node.setId(ids);
-                diagram.addItem(node);
-                var link = new DiagramLink(diagram, originNode, node);
-                link.setHeadShape('Triangle');
-                link.setHeadBrush('#003466');
-                link.setStroke('#003466');
-                link.setLocked(true);
-                diagram.addItem(link);
-                // createAnimatedLink(originNode, node);
-                diagram.arrange(layout);
-                diagram.resizeToFitItems(10);
-
-
-                // create a larger decision tree for the new input file
-                if(s.includes("DECISIONTREE") && ifNewInput == 'yes') {
-                    console.log("reach decisiontree");
-                    newInput(dtlink, id, true, i);
-                    ifNewInput = JSON.parse(localStorage.getItem("ifNewInput"));
-                }
-
-            }
-        }
-    }
-}
-
-// nextoption is a function to be called when a single answer in the drop-down menu is selected. 
-// Input: id is the id of the parent node, and originNode is the parent node
-// Output: the function generates a single child node. 
+// nextoption is a function to be called when a single answer in the drop-down menu is selected.
+// It is called by the driver function selectClick 
+// the function creates and shows a single next box. 
+// Input: id is the id of the current box, and originNode is the current box object
+// No return output
 function nextoption(id, originNode) {
     let ifCheckbox = false;
     var node = new MindFusion.Diagramming.ControlNode(diagram);
@@ -379,7 +274,7 @@ function nextoption(id, originNode) {
 
     // Shrink the node if the text is small. 
     if(s.length < 40) {
-        by = 20;
+        by = 22;
         // document.getElementById('d1').style.paddingBottom = '0px';
     }
     else {
@@ -429,6 +324,7 @@ function nextoption(id, originNode) {
             }
 
             console.log("check s in get_sql_result: " + s);
+            console.log("check id in nextoption: " + id);
             var val = `<div id="d1"><p>` + s + `</p></div>`;
             if (arr[id].length > 0 && arr[id].length <= 5) {
                 val += `<div><select data-interactive="true" data-event-change="selectClick" name= "${id}" class="select" id= "${id}"><option value="none" selected></option>`;
@@ -451,7 +347,7 @@ function nextoption(id, originNode) {
                 }
                 // onclick="checkboxAnswers(' + id + ',' + originNode + ');
                 val += '<button type="button" id = cb-button class="btn btn-primary" >Submit</button>';
-
+                
                 val += '</form>';
             }
             
@@ -564,9 +460,390 @@ function nextoption(id, originNode) {
 
 }
 
-// This function can creates animated link
-// Input: originNode is the parent node, and node is the child node
-// Ouput: animated link
+// notSure will be called where the user clicks "not sure" in the drop-down menu.
+// It is called by the selectClick function
+// the funciton creats and shows all answer boxes of the current box. 
+// Input: id is the id of the current box, and originNode is the current box object.
+// No output
+function notSure(id, originNode) {
+    var node = new MindFusion.Diagramming.ControlNode(diagram);
+    var layout = new MindFusion.Graphs.TreeLayout();
+    layout.root = node;
+    layout.direction = MindFusion.Graphs.LayoutDirection.TopToBottom;
+    layout.keepRootPosition = true;
+    layout.levelDistance = 33;
+    linkType = MindFusion.Graphs.TreeLayoutLinkType.Cascading;
+    if (arr[id].length > 0) {
+        for (var i = 0; i < arr[id].length; i++) {
+            
+            let node = new MindFusion.Diagramming.ControlNode(diagram);
+            let ids = arr[id][i];
+            let len = str[ids].search(',');
+            let s = str[ids].substring(len + 1, str[ids].length);
+            console.log("check ids1: " + ids);
+            // Shrink the node if the text is small. 
+            if(s.length < 40) {
+                by = 22;
+                // document.getElementById('d1').style.paddingBottom = '0px';
+            }
+            else {
+                by = 30;
+                // document.getElementById('d1').style.paddingBottom = '25px';
+            }
+
+
+            // detect if the text contains link and add hypertext reference to the link
+            let s_len = s.search("https");
+            let dtlink = s.substring(s_len, s.length);
+            if(s.includes("DOCUMENT") || s.includes("DECISIONTREE")) {
+                let link_ref = '<a href="' + dtlink + '" target="_blank">' + dtlink + '</a>';
+                s = s.substring(0, s_len) + link_ref;
+            }
+
+            
+            // detect and handle sql query
+            if(s.includes("SQL")) {
+                // We need this myCallback function because the code in ajax runs asynchronously. 
+                // We use this function to help receive the result from python
+                function myCallback(sql_result) {
+                    console.log("check sql_result[1]: "  + sql_result[1]);
+
+                    let sql_result_list = [];
+                    let hasResult = true;
+                    while(sql_result[1].length > 9) { // > 9 because we have \n <\div> in the end
+                        let len3 = sql_result[1].indexOf("("); // the data is in data[1] instead of data[0] for some reason
+                        let len4 = sql_result[1].indexOf(")");
+                        if(len3 == -1 || len4 == -1) {
+                            hasResult = false;
+                            break; // that means there is no result
+                        }
+                        let test = sql_result[1].substring(len3 + 1, len4).split(', ');
+                        console.log("test: " + test);
+                        sql_result_list.push(test);
+                        sql_result[1] = sql_result[1].substring(len4 + 1, sql_result[1].length);
+                        console.log("check sql_result for each loop: " + sql_result[1]);
+                    }
+
+                    if(hasResult == true) {
+                        console.log("check sql_result_list: " + sql_result_list[0]);
+                        let ifPlural1 = sql_result_list.length > 1 ? "houses " : "house ";
+                        let ifPlural2 =  sql_result_list.length > 1 ? "meet " : "meets ";
+                        let ifPlural3 =  sql_result_list.length > 1 ? "are " : "is ";
+                        s = "The " + ifPlural1 + ifPlural2 +  "your need " + ifPlural3 + ": " + sql_result_list[0][1];
+                        for(let i = 1; i < sql_result_list.length; i++) {
+                            s = s + ', ' + sql_result_list[i][1];
+                        }
+                    }
+                    else if(ifSearch != 'yes'){ 
+                        // If there is no result
+                        // ifSearch != 'yes' because when users search sql command in the node, the desire answer should not be the string below.
+                        // this can be trivial because users usually don't want to search the sql command which will be replaced with more readable string answers. 
+                        s = "Sorry, there is no house meeting your need. Please change your answers.";
+                    }
+
+
+                    console.log("check s in get_sql_result: " + s);
+                    let showResult = str[ids].substring(0, len + 2) + s;
+                    let val = `<div id="d1"><p>` + showResult + `</p></div>`;
+                    if (arr[ids].length > 0) {
+                        val += `<div><select data-interactive="true" data-event-change="selectClick" name= "${ids}" id= "${ids}"><option value="none" selected></option>`;
+                        for (var j = 0; j < arr[ids].length; j++) {
+    
+                            len1 = str[arr[ids][j]].search(',');
+                            s1 = str[arr[ids][j]].substring(3, len1);
+                            val += `<option value=` + arr[ids][j] + `>` + s1 + `</option>`;
+                        }
+                        val += `<option value="NotSure">NotSure</option>`;
+                        val += `</select></div>`;
+                    }
+                    node.setTemplate(val);
+                    node.setBounds(new Rect(originNode.getBounds().x, originNode.getBounds().y + 60, bx, by));
+                    // node.setLocked(true);
+                    // node.setVisible(true);
+                    node.setStroke('#003466');
+                    node.setId(ids);
+                    diagram.addItem(node);
+                    var link = new DiagramLink(diagram, originNode, node);
+                    link.setHeadShape('Triangle');
+                    link.setHeadBrush('#003466');
+                    link.setStroke('#003466');
+                    link.setLocked(true);
+                    diagram.addItem(link);
+                    diagram.arrange(layout);
+                    diagram.resizeToFitItems(10);
+                    // createAnimatedLink(originNode, node);
+
+                }
+
+                get_sql_result(myCallback);
+
+                function get_sql_result(callback) { 
+                    let len2 = s.search('SQL:');
+                    let query = s.substring(len2 + 5, s.length); // plus 5 to skip 'SQL: ' 
+                    console.log(query);
+                    let query_list = [];
+                    query_list.push(query);
+                    let query_dic = Object.assign({}, query_list);
+                    const s2 = JSON.stringify(query_dic);
+                    $.ajax({
+                        url:"/get_sql",
+                        type:"POST",
+                        contentType:"application/json",
+                        data: JSON.stringify(s2),
+                        success: callback,
+                    });
+                }
+        
+            }    
+            else {            
+                var val = `<div id="d1"><p>` + str[ids] + `</p></div>`;
+                if (arr[ids].length > 0 && arr[id].length <= 5) {
+                    val += `<div><select data-interactive="true" data-event-change="selectClick" name= "${ids}" id= "${ids}"><option value="none" selected></option>`;
+                    for (var j = 0; j < arr[ids].length; j++) {
+
+                        len1 = str[arr[ids][j]].search(',');
+                        s1 = str[arr[ids][j]].substring(3, len1);
+                        val += `<option value=` + arr[ids][j] + `>` + s1 + `</option>`;
+                    }
+                    val += `<option value="NotSure">NotSure</option>`;
+                    val += `</select></div>`;
+                }
+                else if(arr[id].length > 5) {
+                    ifCheckbox = true;
+                    val += '<form action="#" method="post" id="checkbox_form"">';
+                    for (var i = 0; i < arr[id].length; i++) {
+                        len1 = str[arr[id][i]].search(',');
+                        s1 = str[arr[id][i]].substring(3, len1);
+                        val += `<input type="checkbox" name="option" class="checkbox" value="` + arr[id][i] + `" />` + s1 + `<br />`;                    
+                    }
+                    // onclick="checkboxAnswers(' + id + ',' + originNode + ');
+                    val += '<button type="button" id = cb-button class="btn btn-primary" >Submit</button>';
+                
+                    
+                    val += '</form>';
+                }
+
+                node.setTemplate(val);
+
+                node.setBounds(new Rect(originNode.getBounds().x, originNode.getBounds().y + 60, bx, by));
+                // node.setLocked(true);
+                // node.setVisible(false);
+                node.setStroke('#003466');
+                node.setId(ids);
+                diagram.addItem(node);
+                var link = new DiagramLink(diagram, originNode, node);
+                link.setHeadShape('Triangle');
+                link.setHeadBrush('#003466');
+                link.setStroke('#003466');
+                link.setLocked(true);
+                diagram.addItem(link);
+                diagram.arrange(layout);
+                diagram.resizeToFitItems(10);
+                // createAnimatedLink(originNode, node);
+
+                // submit the checkbox answers
+                if(arr[id].length > 5) {
+                    var o = document.getElementById("cb-button");
+                    console.log("check o: " + o);
+                    currId = id;
+                    currOriginNode = node;
+                    o.onclick = checkboxAnswers;
+                }
+
+                // create a larger decision tree for the new input file
+                if(s.includes("DECISIONTREE") && ifNewInput == 'yes') {
+                    console.log("reach decisiontree");
+                    newInput(dtlink, id, true, i);
+                    ifNewInput = JSON.parse(localStorage.getItem("ifNewInput"));
+                }
+            }
+
+        }
+    }
+}
+
+// showCheckbox is called when the current box has more than 5 options
+// it creats and shows the multiple next boxes corresponding to the answers of the checkbox
+// Input: id is the id of the current box, originNode is the current box object, and results is the list containing the answers of the checkbox
+// No ouput
+function showCheckbox(id, originNode, results) {
+    var node = new MindFusion.Diagramming.ControlNode(diagram);
+    var layout = new MindFusion.Graphs.TreeLayout();
+    layout.root = node;
+    layout.direction = MindFusion.Graphs.LayoutDirection.TopToBottom;
+    layout.keepRootPosition = true;
+    layout.levelDistance = 10;
+    linkType = MindFusion.Graphs.TreeLayoutLinkType.Cascading;
+    if (arr[id].length > 0) {
+        for (var i = 0; i < arr[id].length; i++) {
+
+            if(results.includes(i)) {
+                let node = new MindFusion.Diagramming.ControlNode(diagram);
+                let ids = arr[id][i];
+                let len = str[ids].search(',');
+                let s = str[ids].substring(len + 1, str[ids].length);
+
+                // Shrink the node if the text is small. 
+                if(s.length < 40) {
+                    by = 22;
+                    // document.getElementById('d1').style.paddingBottom = '0px';
+                }
+                else {
+                    by = 30;
+                    // document.getElementById('d1').style.paddingBottom = '25px';
+                }
+                
+                // detect if the text contains link and add hypertext reference to the link
+                // rename link to dtlink(decision tree link) here because we use the name 'link' later for arrows
+                let s_len = s.search("https");
+                let dtlink = s.substring(s_len, s.length);
+                if(s.includes("DOCUMENT") || s.includes("DECISIONTREE")) {
+                    let link_ref = '<a href="' + dtlink + '" target="_blank">' + dtlink + '</a>';
+                    s = s.substring(0, s_len) + link_ref;
+                }
+
+                // detect and handle sql query
+                if(s.includes("SQL")) {
+                    // We need this myCallback function because the code in ajax runs asynchronously. 
+                    // We use this function to help receive the result from python
+                    function myCallback(sql_result) {
+                        console.log("check sql_result[1]: "  + sql_result[1]);
+
+                        let sql_result_list = [];
+                        let hasResult = true;
+                        while(sql_result[1].length > 9) { // > 9 because we have \n <\div> in the end
+                            let len3 = sql_result[1].indexOf("("); // the data is in data[1] instead of data[0] for some reason
+                            let len4 = sql_result[1].indexOf(")");
+                            if(len3 == -1 || len4 == -1) {
+                                hasResult = false;
+                                break; // that means there is no result
+                            }
+                            let test = sql_result[1].substring(len3 + 1, len4).split(', ');
+                            console.log("test: " + test);
+                            sql_result_list.push(test);
+                            sql_result[1] = sql_result[1].substring(len4 + 1, sql_result[1].length);
+                            console.log("check sql_result for each loop: " + sql_result[1]);
+                        }
+
+                        if(hasResult == true) {
+                            console.log("check sql_result_list: " + sql_result_list[0]);
+                            let ifPlural1 = sql_result_list.length > 1 ? "houses " : "house ";
+                            let ifPlural2 =  sql_result_list.length > 1 ? "meet " : "meets ";
+                            let ifPlural3 =  sql_result_list.length > 1 ? "are " : "is ";
+                            s = "The " + ifPlural1 + ifPlural2 +  "your need " + ifPlural3 + ": " + sql_result_list[0][1];
+                            for(let i = 1; i < sql_result_list.length; i++) {
+                                s = s + ', ' + sql_result_list[i][1];
+                            }
+                        }
+                        else if(ifSearch != 'yes'){ 
+                            // If there is no result
+                            // ifSearch != 'yes' because when users search sql command in the node, the desire answer should not be the string below.
+                            // this can be trivial because users usually don't want to search the sql command which will be replaced with more readable string answers. 
+                            s = "Sorry, there is no house meeting your need. Please change your answers.";
+                        }
+
+
+                        console.log("check s in get_sql_result: " + s);
+
+                        // str[ids]
+                        // var val = `<div id="d1"><p>` + s + `</p></div>`;
+                        let showResult = str[ids].substring(0, len + 2) + s;
+                        let val = `<div id="d1"><p>` + showResult + `</p></div>`;
+                        if (arr[ids].length > 0) {
+                            val += `<div><select data-interactive="true" data-event-change="selectClick" name= "${ids}" id= "${ids}"><option value="none" selected></option>`;
+                            for (var j = 0; j < arr[ids].length; j++) {
+                                len1 = str[arr[ids][j]].search(',');
+                                s1 = str[arr[ids][j]].substring(3, len1);
+                                val += `<option value=` + arr[ids][j] + `>` + s1 + `</option>`;
+                            }
+                            val += `<option value="NotSure">NotSure</option>`;
+                            val += `</select></div>`;
+                        }
+                        node.setTemplate(val);
+
+                        node.setBounds(new Rect(originNode.getBounds().x, originNode.getBounds().y + 60, bx, by));
+                        // node.setLocked(true);
+                        // node.setVisible(false);
+                        node.setStroke('#003466');
+                        node.setId(ids);
+                        diagram.addItem(node);
+                        var link = new DiagramLink(diagram, originNode, node);
+                        link.setHeadShape('Triangle');
+                        link.setHeadBrush('#003466');
+                        link.setStroke('#003466');
+                        link.setLocked(true);
+                        diagram.addItem(link);
+                        // createAnimatedLink(originNode, node);
+                        diagram.arrange(layout);
+                        diagram.resizeToFitItems(10);
+                    }
+
+                    get_sql_result(myCallback);
+
+                    function get_sql_result(callback) { 
+                        let len2 = s.search('SQL:');
+                        let query = s.substring(len2 + 5, s.length); // plus 5 to skip 'SQL: ' 
+                        console.log(query);
+                        let query_list = [];
+                        query_list.push(query);
+                        let query_dic = Object.assign({}, query_list);
+                        const s2 = JSON.stringify(query_dic);
+                        $.ajax({
+                            url:"/get_sql",
+                            type:"POST",
+                            contentType:"application/json",
+                            data: JSON.stringify(s2),
+                            success: callback,
+                        });
+                    }
+                }
+                else {
+                    var val = `<div id="d1"><p>` + str[ids] + `</p></div>`;
+                    if (arr[ids].length > 0) {
+                        val += `<div><select data-interactive="true" data-event-change="selectClick" name= "${ids}" id= "${ids}"><option value="none" selected></option>`;
+                        for (var j = 0; j < arr[ids].length; j++) {
+                            len1 = str[arr[ids][j]].search(',');
+                            s1 = str[arr[ids][j]].substring(3, len1);
+                            val += `<option value=` + arr[ids][j] + `>` + s1 + `</option>`;
+                        }
+                        val += `<option value="NotSure">NotSure</option>`;
+                        val += `</select></div>`;
+                    }
+                    node.setTemplate(val);
+
+                    node.setBounds(new Rect(originNode.getBounds().x, originNode.getBounds().y + 60, bx, by));
+                    // node.setLocked(true);
+                    // node.setVisible(false);
+                    node.setStroke('#003466');
+                    node.setId(ids);
+                    diagram.addItem(node);
+                    var link = new DiagramLink(diagram, originNode, node);
+                    link.setHeadShape('Triangle');
+                    link.setHeadBrush('#003466');
+                    link.setStroke('#003466');
+                    link.setLocked(true);
+                    diagram.addItem(link);
+                    // createAnimatedLink(originNode, node);
+                    diagram.arrange(layout);
+                    diagram.resizeToFitItems(10);
+
+                    // create a larger decision tree for the new input file
+                    if(s.includes("DECISIONTREE") && ifNewInput == 'yes') {
+                        console.log("reach decisiontree");
+                        newInput(dtlink, id, true, i);
+                        ifNewInput = JSON.parse(localStorage.getItem("ifNewInput"));
+                    }
+                
+                }
+
+            }
+        }
+    }
+}
+
+// This function can show animated link
+// Input: originNode is the current box object, and node is the next node object
+// No return output
 function createAnimatedLink(originNode, node) {
     var link = new DiagramLink(diagram, originNode, node);
     link.setHeadShape('Triangle');
@@ -588,9 +865,11 @@ function createAnimatedLink(originNode, node) {
     animation.start();
 }
 
-// This function can delete the node
+// This function is the driver function for deleting the box
+// It is called when users select an answre in the previous boxes (any box higher than the current box)
+// It will call the deleteRecursively function to delete the box
 // Input: id is the id of the node that you want to delete
-// Output: a node will be deleted in the UI
+// No output
 function deleteNode(id) {
 
     var nodes = diagram.nodes.filter(function (p) {
@@ -602,9 +881,12 @@ function deleteNode(id) {
     }
 }
 
-// This function can delete multiple siblings recursively
+
+// This function can delete the single or multiples boxes 
+// It is called when users select an answre in the previous boxes (any box higher than the current box)
+// all redundant boxes below the box selected by the users will be deleted
 // Input: links is a list of OutgoingLinks
-// Output: all siblings will be deleted in the UI
+// No output
 function deleteRecursively(links) {
     for (var i = links.length - 1; i >= 0; i--) {
         var node = links[i].getDestination();
@@ -617,6 +899,7 @@ function deleteRecursively(links) {
 }
 
 // a custom update callback for link animations
+// It is called by createAnimatedLink function
 function onUpdateLink(animation, animationProgress) {
     var link = animation.item;
     var pointA = animation.getFromValue(),
@@ -629,10 +912,11 @@ function onUpdateLink(animation, animationProgress) {
     link.invalidate();
 }
 
-// This function print and save the path from root to the current node 
-// Input: parent_id is the id of the parent node, child_id is the id of the child node, ifsure is a boolean that is true when "not sure" is 
+// This function print and save the path from root to the current box
+// It is called by the nextOption function, so it is called whenever users click the drop-down menu
+// a path from root to the current node printed in the console and the path saving in a txt file
+// Input: parent_id is the id of the current box, child_id is the id of the next box, ifsure is a boolean that is true when "not sure" is 
 // not clicked and is false when "not sure" is clicked. 
-// Output: a path from root to the current node printed in the console and the path saving in a txt file
 function printPath(parent_id, child_id, ifsure) {
     let save_path = []
     console.log("Path(from root to curr): " + str_hyphens[parent_id] + "\n");
@@ -668,8 +952,8 @@ function printPath(parent_id, child_id, ifsure) {
 }
 
 // findPath gives the path from root to the target node. 
-// Input: root_id is the id of the root which is zero in our case. path is a list to store the path. k is the id of the target node.
-// Output: a boolean variable which is true when the k is found in the tree and false when k is not found in the tree. 
+// Input: root_id is the id of the root which is zero in our case. path is a list to store the path. k is the id of the box with keyword.
+// Output: a boolean variable which is true when the box with keyword is found in the tree and false when the box with keyword is not found in the tree. 
 function findPath(root_id, path, k) {
     // base case
     if(root_id == undefined) {
@@ -694,8 +978,11 @@ function findPath(root_id, path, k) {
 
 }
 
-// subtree is a function that prints the subtree of a node
-// Input: ifSubtree is a boolean variable indicating whether user want to print the subtree. 
+// subtree is a function that prints the subtree of a box
+// Input: ifSubtree is a variable indicating whether users want to print the subtree. 
+// When ifSubtree == no, the users want to print the path from root to the box with keyword
+// When ifSubtree == yes, the users want to print the subtree
+// When ifSubtree == other, the users want to print boxes other than boxes in the path or subtree
 // no output
 function subtree(ifSubtree, node_id) {
     if(ifSubtree == 'no') {
@@ -704,21 +991,27 @@ function subtree(ifSubtree, node_id) {
     else if(arr[node_id].length == 0) {
         return;
     }
-    else if(ifSubtree == 'yes') {
+    else if(ifSubtree == 'yes' || ifSubtree == 'other') {
         for(let j = 0; j < arr[node_id].length; j++) {
-            console.log(str_hyphens[arr[node_id][j]]);
+            // print out the subtree
+            if(ifSubtree == 'yes') {
+                console.log(str_hyphens[arr[node_id][j]]);
+            }
             path_subtree.push(str_hyphens[arr[node_id][j]]);
-            subtree('yes', arr[node_id][j]);
+            path_and_subtree.push(arr[node_id][j]);
+            subtree(ifSubtree, arr[node_id][j]);
         }
     }
 }
 
 
-// input_search is a function that gives the results of searching. It allows the user to choose from multiple results.
+// input_search is a function that shows the results of searching. 
+// It is called when users clicked the 'search' button
+// It allows users to choose from multiple results when more than one box containing the keyword.
+// It also allows users to decide how to print out the results as hyphens format: path, subtree, or other boxes
 // no input 
-// output: show the results in the UI
 function input_search() {
-    keyword = $('#input').val()
+    keyword = $('#input').val();
     result = keywordSearch(keyword);
 
     if(result.length == 0) {
@@ -734,10 +1027,11 @@ function input_search() {
         // for checking the first option
         text.innerHTML += str[result[0]] + '<input name="search_result" type="radio" value="'+ result[0] +'" checked> <br>';
 
-        text.innerHTML += 'Do you want to print out the subtree of the keyword node? <br>';
-        text.innerHTML += 'Yes<input name="ifSubtree" type="radio" value="yes" checked> <br>';
-        text.innerHTML += 'No<input name="ifSubtree" type="radio" value="no"> <br>';
-        text.innerHTML += '<button class="btn btn-primary" onclick="submit()">submit</button>';        
+        text.innerHTML += 'How do you want to print out the tree with the keyword node? <br>';
+        text.innerHTML += 'Nodes in the path/tree so far<input name="ifSubtree" type="radio" value="no" checked> <br>';
+        text.innerHTML += 'Nodes reachable from the path/tree so far<input name="ifSubtree" type="radio" value="yes"> <br>';
+        text.innerHTML += 'Other nodes<input name="ifSubtree" type="radio" value="other"> <br>';
+        text.innerHTML += '<button class="btn btn-primary" onclick="submit()">submit</button>';   
     }
     else {
         let text = document.getElementById('result');
@@ -748,14 +1042,15 @@ function input_search() {
             text.innerHTML += '<p>' + str[result[i]] + '</p>' + '<input name="search_result" type="radio" value="'+ result[i] +'"> <br> ';
         }
 
-        text.innerHTML += 'Do you want to print out the subtree of the keyword node? <br>';
-        text.innerHTML += 'Yes<input name="ifSubtree" type="radio" value="yes" checked> <br>';
-        text.innerHTML += 'No<input name="ifSubtree" type="radio" value="no"> <br>';
+        text.innerHTML += 'How do you want to print out the tree with the keyword node? <br>';
+        text.innerHTML += 'Nodes in the path/tree so far<input name="ifSubtree" type="radio" value="no" checked> <br>';
+        text.innerHTML += 'Nodes reachable from the path/tree so far<input name="ifSubtree" type="radio" value="yes"> <br>';
+        text.innerHTML += 'Other nodes<input name="ifSubtree" type="radio" value="other"> <br>';
         text.innerHTML += '<button class="btn btn-primary" onclick="submit()">submit</button>';
     }
 }
 
-// keywordSearch is a function that searches the node with keyword line by line
+// keywordSearch is a function that searches the box with keyword 
 // Input: keyword
 // Output: a list containing the id of the nodes with keywords. 
 function keywordSearch(key) {
@@ -770,9 +1065,9 @@ function keywordSearch(key) {
     return loc;
 }
 
-// submit is a function to be called when the user clicks the submit button
+// submit is a function to be called when the user clicks the submit button after selecting all the radio buttons in the search box
 // it will reload the page and set ifSearch variable to 'yes'. 
-// once the ifSearch becomes 'yes', the page can show the desired node after reloading
+// once the ifSearch becomes 'yes', the page can show the desired box after reloading
 // no input or output
 function submit(){
     let result = document.getElementsByName('search_result');
@@ -929,8 +1224,9 @@ function checkboxAnswers() {
 
 dragElement(document.getElementById("mydiv"));
 
-// This function makes the search window draggable
-// Input: the html element needed to be draggable
+// This function makes the search box draggable
+// It will be called when users click the search box
+// Input: the html element of the search box
 // no output
 function dragElement(elmnt) {
   var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
@@ -979,19 +1275,18 @@ function dragElement(elmnt) {
   }
 }
 
-// This function can help pass the result in ajax to javascript
-// Input: the sql result in ajax
-function updateSQLResult(result_in_ajax) {
-    sql_result = result_in_ajax[1];
-    if(sql_result.includes('&#39;')) {
-        let len5 = sql_result.indexOf('&#39;');
-        let len6 = sql_result.indexOf('&#39;', 4);
-        sql_result = sql_result.substring(len5 + 5, len6);
+// // This function can help pass the result in ajax to javascript
+// // Input: the sql result in ajax
+// function updateSQLResult(result_in_ajax) {
+//     sql_result = result_in_ajax[1];
+//     if(sql_result.includes('&#39;')) {
+//         let len5 = sql_result.indexOf('&#39;');
+//         let len6 = sql_result.indexOf('&#39;', 4);
+//         sql_result = sql_result.substring(len5 + 5, len6);
 
-    }
+//     }
 
-    console.log("check result in help function: " + sql_result);
-}
-
+//     console.log("check result in help function: " + sql_result);
+// }
 
 

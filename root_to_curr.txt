@@ -1,0 +1,7 @@
+
+are you happy?
+--if yes, then great
+
+are you happy?
+--if not interested, which of these topics are you interested in: myeloma diagnosis, social security card, student visa?
+----if interested in NYU, DOCUMENT: https://www.nyu.edu

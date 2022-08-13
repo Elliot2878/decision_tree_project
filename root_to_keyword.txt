@@ -1,67 +1,9 @@
-how many bedrooms you need?
---if one, how many square feet?
-----if between 1500 to 3000, do you want a swimming pool?
-------if yes, SQL: select * from houses where num_of_bedrooms = 1  and square_feet > 1500 and square_feet < 3000 and swimming_pool = 'Y'; 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+--if yes, then great
+--if no, then see a shrink
+--if not interested, which of these topics are you interested in: myeloma diagnosis, social security card, student visa?
+----if interested in NYU, DOCUMENT: https://www.nyu.edu
+----if interested in myeloma, DECISIONTREE: https://elliot2878.github.io/decision_tree.github.io/myeloma.txt
+----if interested in APPLE, DOCUMENT: https://www.apple.com
 
 
 
