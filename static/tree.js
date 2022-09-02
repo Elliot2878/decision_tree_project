@@ -39,14 +39,16 @@ else if(ifSearch = 'no') {
 
 let root_key_id = [];
 let path_subtree = []; 
-let path_and_subtree = [];
+let pathAndSubtree = [];
+let currTreeIdList = [];
 var index = 2; // for auto selecting the answers according to path, it is used in the next option function
-myFunction();
+rootNode();
 
-// myFunction generate the root node
-// myFunction is called whenever the page is loaded
+// rootNode generate the root node
+// rootNode is called whenever the page is loaded
 // No input or output
-function myFunction() {
+function rootNode() {
+    currTreeIdList.push(0);
     diagram = Diagram.create(document.getElementById("diagram"));
     var Behavior = MindFusion.Diagramming.Behavior;
     diagram.setBehavior(Behavior.SelectOnly);
@@ -135,7 +137,7 @@ function myFunction() {
         let root_key = [];
         for(let i = 0; i < root_key_id.length; i++) {
             root_key.push(str_hyphens[root_key_id[i]]);
-            path_and_subtree.push(root_key_id[i]);
+            pathAndSubtree.push(root_key_id[i]);
         }
 
 
@@ -172,11 +174,11 @@ function myFunction() {
         }
         else {
             console.log("other nodes: ");
-            subtree(ifSubtree, key); //you need to store the subtree id in the list path_and_subtree.
+            subtree(ifSubtree, key); //you need to store the subtree id in the list pathAndSubtree.
 
             let other = [];
             for(let i = 0; i < str_hyphens.length; i++) {
-                if(path_and_subtree.includes(i) == false) {
+                if(pathAndSubtree.includes(i) == false) {
                     console.log(str_hyphens[i]);
                     other.push(str_hyphens[i]);
                 }
@@ -259,6 +261,7 @@ function selectClick(e, sender) {
 // Input: id is the id of the current box, and originNode is the current box object
 // No return output
 function nextoption(id, originNode) {
+    currTreeIdList.push(parseInt(id));
     let ifCheckbox = false;
     var node = new MindFusion.Diagramming.ControlNode(diagram);
     let len = str[id].search(',');
@@ -475,9 +478,9 @@ function notSure(id, originNode) {
     linkType = MindFusion.Graphs.TreeLayoutLinkType.Cascading;
     if (arr[id].length > 0) {
         for (var i = 0; i < arr[id].length; i++) {
-            
             let node = new MindFusion.Diagramming.ControlNode(diagram);
             let ids = arr[id][i];
+            currTreeIdList.push(parseInt(ids));
             let len = str[ids].search(',');
             let s = str[ids].substring(len + 1, str[ids].length);
             console.log("check ids1: " + ids);
@@ -676,10 +679,10 @@ function showCheckbox(id, originNode, results) {
     linkType = MindFusion.Graphs.TreeLayoutLinkType.Cascading;
     if (arr[id].length > 0) {
         for (var i = 0; i < arr[id].length; i++) {
-
             if(results.includes(i)) {
                 let node = new MindFusion.Diagramming.ControlNode(diagram);
                 let ids = arr[id][i];
+                currTreeIdList.push(parseInt(ids));
                 let len = str[ids].search(',');
                 let s = str[ids].substring(len + 1, str[ids].length);
 
@@ -872,8 +875,15 @@ function createAnimatedLink(originNode, node) {
 // No output
 function deleteNode(id) {
 
+    for(let i = 0; i < arr[id].length; i++) {
+        let index = currTreeIdList.indexOf(arr[id][i]);
+        if (index > -1) { // only splice array when item is found
+          currTreeIdList.splice(index, 1); // 2nd parameter means remove one item only
+        }
+    }
+
     var nodes = diagram.nodes.filter(function (p) {
-        return p.id === id;
+        return p.id === id;        
     });
 
     if (nodes.length > 0) {
@@ -979,7 +989,7 @@ function findPath(root_id, path, k) {
 }
 
 // subtree is a function that prints the subtree of a box
-// Input: ifSubtree is a variable indicating whether users want to print the subtree. 
+// Input: ifSubtree is a variable indicating whether users want to print the subtree. node_id is the id of the box that having the subtree
 // When ifSubtree == no, the users want to print the path from root to the box with keyword
 // When ifSubtree == yes, the users want to print the subtree
 // When ifSubtree == other, the users want to print boxes other than boxes in the path or subtree
@@ -998,7 +1008,7 @@ function subtree(ifSubtree, node_id) {
                 console.log(str_hyphens[arr[node_id][j]]);
             }
             path_subtree.push(str_hyphens[arr[node_id][j]]);
-            path_and_subtree.push(arr[node_id][j]);
+            pathAndSubtree.push(arr[node_id][j]);
             subtree(ifSubtree, arr[node_id][j]);
         }
     }
@@ -1027,7 +1037,7 @@ function input_search() {
         // for checking the first option
         text.innerHTML += str[result[0]] + '<input name="search_result" type="radio" value="'+ result[0] +'" checked> <br>';
 
-        text.innerHTML += 'How do you want to print out the tree with the keyword node? <br>';
+        text.innerHTML += '<br>How do you want to print out the tree in console? <br>';
         text.innerHTML += 'Nodes in the path/tree so far<input name="ifSubtree" type="radio" value="no" checked> <br>';
         text.innerHTML += 'Nodes reachable from the path/tree so far<input name="ifSubtree" type="radio" value="yes"> <br>';
         text.innerHTML += 'Other nodes<input name="ifSubtree" type="radio" value="other"> <br>';
@@ -1036,13 +1046,48 @@ function input_search() {
     else {
         let text = document.getElementById('result');
         text.innerHTML = 'All nodes containing the keyword (please choose the node you want and click submit): <br>' ;
-        // for checking the first option
-        text.innerHTML += '<p>' + str[result[0]] + '</p>' + '<input name="search_result" type="radio" value="'+ result[0] +'" checked> <br> ';
-        for(let i = 1; i < result.length; i++) {
-            text.innerHTML += '<p>' + str[result[i]] + '</p>' + '<input name="search_result" type="radio" value="'+ result[i] +'"> <br> ';
-        }
+        
+        text.innerHTML += "<button onclick=" + "showOrHideResultsX(result)" + ">Show/Hide</button>";
+        text.innerHTML += '<div id="alreadyVisited">Already visited: </div><br>';
 
-        text.innerHTML += 'How do you want to print out the tree with the keyword node? <br>';
+
+        // for(let i = 0; i < result.length; i++) {
+        //     if(currTreeIdList.includes(result[i])) {
+        //         console.log(currTreeIdList[i]);
+        //         text.innerHTML += str[result[i]] + '<input name="search_result" type="radio" value="'+ result[i] +'" checked> <br> ';
+        //     }
+        // }
+
+        text.innerHTML += "<button onclick=" + "showOrHideResultsY(result)" + ">Show/Hide</button>";
+        text.innerHTML += '<div id="reachable">Reachable: </div><br>';
+        
+        // subtree('yes', currTreeIdList[currTreeIdList.length - 1]);        
+        // for(let i = 0; i < result.length; i++) {
+        //     if(pathAndSubtree.includes(result[i])) {
+        //         text.innerHTML += str[result[i]] + '<input name="search_result" type="radio" value="'+ result[i] +'" checked> <br> ';
+        //     }
+        // }
+        
+        pathAndSubtree = []; // empty the pathAndSubtree
+
+        text.innerHTML += "<button onclick=" + "showOrHideResultsZ(result)" + ">Show/Hide</button>";
+        text.innerHTML += '<div id="otherNodes">Other nodes: </div><br>';
+
+        // for(let i = 0; i < result.length; i++) {
+        //     if(currTreeIdList.includes(result[i]) == false && pathAndSubtree.includes(result[i]) == false) {
+        //         text.innerHTML += str[result[i]] + '<input name="search_result" type="radio" value="'+ result[i] +'" checked> <br> ';
+        //     }
+        // }
+
+
+
+        // // for checking the first option
+        // text.innerHTML += str[result[0]] + '<input name="search_result" type="radio" value="'+ result[0] +'" checked> <br> ';
+        // for(let i = 1; i < result.length; i++) {
+        //     text.innerHTML += str[result[i]] + '<input name="search_result" type="radio" value="'+ result[i] +'"> <br>';
+        // }
+
+        text.innerHTML += '<br>How do you want to print out the tree with the keyword node? <br>';
         text.innerHTML += 'Nodes in the path/tree so far<input name="ifSubtree" type="radio" value="no" checked> <br>';
         text.innerHTML += 'Nodes reachable from the path/tree so far<input name="ifSubtree" type="radio" value="yes"> <br>';
         text.innerHTML += 'Other nodes<input name="ifSubtree" type="radio" value="other"> <br>';
@@ -1055,8 +1100,10 @@ function input_search() {
 // Output: a list containing the id of the nodes with keywords. 
 function keywordSearch(key) {
     let loc = [];
+    console.log('reach');
     for(let i = 0; i < str_hyphens.length; i++) {
-        result = str_hyphens[i].search(key);
+        let str_answer = str_hyphens[i].substring(str_hyphens[i].search(',') + 2, str_hyphens[i].length);
+        result = str_answer.search(key);
         if(result != -1) {
             loc.push(i);
         }
@@ -1230,6 +1277,7 @@ dragElement(document.getElementById("mydiv"));
 // no output
 function dragElement(elmnt) {
   var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
   if (document.getElementById(elmnt.id + "header")) {
     // if present, the header is where you move the DIV from:
     document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
@@ -1275,18 +1323,71 @@ function dragElement(elmnt) {
   }
 }
 
-// // This function can help pass the result in ajax to javascript
-// // Input: the sql result in ajax
-// function updateSQLResult(result_in_ajax) {
-//     sql_result = result_in_ajax[1];
-//     if(sql_result.includes('&#39;')) {
-//         let len5 = sql_result.indexOf('&#39;');
-//         let len6 = sql_result.indexOf('&#39;', 4);
-//         sql_result = sql_result.substring(len5 + 5, len6);
 
-//     }
+function showOrHideResultsX(result) {
+    let x = document.getElementById("alreadyVisited");
+    if(x.textContent === "Already visited: ") {
+        x.innerHTML += '<br>';
 
-//     console.log("check result in help function: " + sql_result);
-// }
+        let hasResult = false;
+        for(let i = 0; i < result.length; i++) {
+            if(currTreeIdList.includes(result[i])) {
+                console.log(currTreeIdList[i]);
+                x.innerHTML += str[result[i]] + '<input name="search_result" type="radio" value="'+ result[i] +'" checked> <br> ';
+                hasResult = true;
+            }
+        }
+        if(hasResult == false) {
+            x.innerHTML += "No Result";
+        }
+    }
+    else {
+        x.innerHTML = "Already visited: ";
+    }
+}
+
+
+function showOrHideResultsY(result) {
+    let y = document.getElementById("reachable");
+    if(y.textContent === "Reachable: ") {
+        y.innerHTML += '<br>';
+
+        let hasResult = false;
+        subtree('yes', currTreeIdList[currTreeIdList.length - 1]);        
+        for(let i = 0; i < result.length; i++) {
+            if(pathAndSubtree.includes(result[i])) {
+                y.innerHTML += str[result[i]] + '<input name="search_result" type="radio" value="'+ result[i] +'" checked> <br> ';
+                hasResult = true;
+            }
+        }
+        if(hasResult == false) {
+            y.innerHTML += "No Result";
+        }
+    }
+    else {
+        y.innerHTML = "Reachable: ";
+    }
+}
+
+function showOrHideResultsZ(result) {
+    let z = document.getElementById("otherNodes");
+    if(z.textContent === "Other nodes: ") {
+        z.innerHTML += '<br>';
+
+        let hasResult = false;
+        for(let i = 0; i < result.length; i++) {
+            if(currTreeIdList.includes(result[i]) == false && pathAndSubtree.includes(result[i]) == false) {
+                z.innerHTML += str[result[i]] + '<input name="search_result" type="radio" value="'+ result[i] +'" checked> <br> ';
+                hasResult = true;
+            }
+        }
+        if(hasResult == false) {
+            z.innerHTML += "No Result";
+        }
+    }
+    else {
+        z.innerHTML = "Other nodes: ";
+    }
+}
 
 

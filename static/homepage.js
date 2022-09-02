@@ -76,6 +76,17 @@ function input() {
 	str = $('#input').val().split("\n"); //we will delete the hyphens later
 	str_hyphens = $('#input').val().split("\n"); 	
 	
+	// let fileURL = document.querySelector('#input').value;
+	// console.log(fileURL);
+	// let extension = fileURL.substring(fileURL.lastIndexOf('.'));
+	// console.log(extension);
+
+	// if(extension == 'cart') {
+	// 	console.log("reach cart");
+	// 	str = cart(str);
+	// 	str_hyphens = str;
+	// }
+
 	if(str[0].includes("CART")) {
 		str = cart(str);
 		str_hyphens = str;
@@ -251,7 +262,8 @@ function jump(line) {
 function cart(cart_str) {
 	
 	let new_str = [];
-	new_str.push('Does ' + cart_str[1].substring(5, cart_str[1].length) + "?"); 
+	let rightparen = cart_str[1].indexOf(')');
+	new_str.push(cart_str[1].substring(5, rightparen + 1) + "?"); 
 	
 	for(let i = 1 ; i + 1 < cart_str.length; i++) {
 
@@ -273,7 +285,7 @@ function cart(cart_str) {
 		for(let j = 0; j < vertical_bar; j++) {
 			hyphens += '--';
 		}
-
+		
 		let new_line = hyphens + 'if ' + cart_str[i].substring(size, cart_str[i].length) + ', ';
 
 		let next_size = 0; 
@@ -288,7 +300,8 @@ function cart(cart_str) {
 			i += 1;
 		}
 		else {
-			new_line = new_line + 'Does ' + cart_str[i + 1].substring(next_size, cart_str[i + 1].length) + '?';
+			let rightparen2 = cart_str[i + 1].indexOf(')');
+			new_line = new_line + cart_str[i + 1].substring(next_size, rightparen2 + 1) + '?';
 		}
 		
 		new_str.push(new_line);

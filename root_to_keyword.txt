@@ -1,10 +1,2 @@
+are you happy?
 --if yes, then great
---if no, then see a shrink
---if not interested, which of these topics are you interested in: myeloma diagnosis, social security card, student visa?
-----if interested in NYU, DOCUMENT: https://www.nyu.edu
-----if interested in myeloma, DECISIONTREE: https://elliot2878.github.io/decision_tree.github.io/myeloma.txt
-----if interested in APPLE, DOCUMENT: https://www.apple.com
-
-
-
-
