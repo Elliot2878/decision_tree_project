@@ -7,21 +7,25 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    # empty the root_to_curr.txt file
+    # empty the root_to_curr.txt file whenever index.html is loaded   
+    # it is called whenever users load the index.html 
+    # output: render index.html
     f = open("root_to_curr.txt", 'r+')
     f.truncate(0)
     return render_template('index.html')
 
 @app.route('/tree.html', methods=["POST", "GET"])
 def tree():
-    if request.method == "POST":
-        answer = request.form.get("todo") 
-        print("answer from checkbox" , answer)
-
+    # load the page tree.html
+    # it is called when users clicked submit button the index.html
+    # output: render the tree.html
     return render_template('tree.html')  
 
 @app.route('/root_to_curr', methods=['POST'])
 def root_to_curr():
+    # saving the path from root to current node as a txt file
+    # it is called after users answer the question of the box, and when the new box appreas
+    # output: the variable storing the path 
     output = request.get_json()
     print(output)
     print(type(output))
@@ -41,6 +45,9 @@ def root_to_curr():
 
 @app.route('/root_to_keyword', methods=['POST'])
 def root_to_desired():
+    # saving the path from root to the box containing keyword as a txt file
+    # it is called when the users search a box through keyword
+    # output: the variable storing the path
     output = request.get_json()
     print(output)
     print(type(output))
@@ -58,6 +65,9 @@ def root_to_desired():
 
 @app.route('/get_subtree', methods=['POST'])
 def get_subtree():
+    # saving the subtree as a txt file
+    # it is called when users click the radio button "Nodes reachable from the path/tree so far", and then click "submit"
+    # output: the variable storing th path result
     output = request.get_json()
     print(output)
     print(type(output))
@@ -74,8 +84,13 @@ def get_subtree():
     f.write('\n')
     return result
 
+
 @app.route('/get_sql', methods=['POST'])
 def get_sql():
+    # connect to the database, create a table in the database(I have commented it, so it won't create duplicate table),
+    # and execute the sql command sent from the tree.js through ajax.
+    # it is called when the text in the new box is a sql command.
+    # output: send the result of the sql command back to tree.js 
     output = request.get_json()
     print(output)
     print(type(output))

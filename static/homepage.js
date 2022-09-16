@@ -11,6 +11,7 @@ var AnimationType = MindFusion.Animations.AnimationType;
 var EasingType = MindFusion.Animations.EasingType;
 var AnimationEvents = MindFusion.Animations.Events;
 var str = [];
+var str_hyphens = [];
 var n;
 var obj;
 let stack = [];
@@ -38,14 +39,14 @@ for(let i = 0; i < chooseTopic.length; i++) {
 	chooseTopic[i].addEventListener('change', () => {
 		if(chooseTopic[i].checked) {
 			$.get( chooseTopic[i].value, function( data ) {
-			var text = data;
-			textarea.value = text;
+				var text = data;
+				textarea.value = text;
 			});
 		}
 	});
 }
 
-// This function allows the user to upload the text input in txt format. 
+// This code allows the user to upload txt file. 
 input1.addEventListener('change', () => {
 	let files = input1.files;
 	if (files.length == 0) return;
@@ -64,6 +65,7 @@ input1.addEventListener('change', () => {
 
 // This function converts the text input to a general tree 
 // It also has a debugger, and it will alert the user if any bugs exist
+// It is called when users click the submit button
 // Input: text input in the textarea
 // Output: str is the list containing the the text input line by line without hyphens.
 // str-hyphens is the list containing the text input line by line with hyphens.
@@ -71,9 +73,28 @@ input1.addEventListener('change', () => {
 // set ifSearch to 'no' so that the next page will only show the root node
 function input() {
 	// document.getElementById("undo").style.display = "inline-block";
-	str = $('#input').val().split("\n");
+	str = $('#input').val().split("\n"); //we will delete the hyphens later
+	str_hyphens = $('#input').val().split("\n"); 	
+	
+	// let fileURL = document.querySelector('#input').value;
+	// console.log(fileURL);
+	// let extension = fileURL.substring(fileURL.lastIndexOf('.'));
+	// console.log(extension);
+
+	// if(extension == 'cart') {
+	// 	console.log("reach cart");
+	// 	str = cart(str);
+	// 	str_hyphens = str;
+	// }
+
+	if(str[0].includes("CART")) {
+		str = cart(str);
+		str_hyphens = str;
+	}
+
 	n = str.length;
-	str_hyphens = $('#input').val().split("\n");
+
+	console.log("test str in hos: " + str);
 	console.log("test str_hyphens in hos: " + str_hyphens);
 	vec = new Array(n);
 	obj = new Array(n);
@@ -100,6 +121,7 @@ function input() {
 		// count the number of hyphens of the next line
 		let next_size = 0;
 		if (i != n - 1) {
+			console.log("debugg i + 1: " + (i + 1));
 			for (var j = 0; j < str[i + 1].length; j++) {
 				if (str[i + 1][j] != '-') break;
 				else next_size++;
@@ -204,7 +226,6 @@ function input() {
 	}
 
 
-
 	localStorage.setItem("str-array", JSON.stringify(str));
 	localStorage.setItem("str-hyphens-array", JSON.stringify(str_hyphens));
 	localStorage.setItem("arr-array", JSON.stringify(arr));
@@ -222,6 +243,7 @@ function input() {
 }
 
 // This function can jump to the line with bug
+// It is called by the 'input' function, so it is called when users click the submit button
 // Input: the line number with bug
 function jump(line) {
   var ta = document.getElementById("input");
@@ -231,3 +253,64 @@ function jump(line) {
   ta.scrollTop = jump;
 }
 
+// When the input has the keyword 'CART' in the first line, the function will parse the format of the CART text output from sciki-learn 
+// into valid hyphens format
+// It is called by 'input' function which is called when users click the submit button
+// Input: the CART text output from sciki-learn
+// Ouput: the input of the system with valid hyphens format
+// Bug: The hyphens will be missing when printing out the path after searching
+function cart(cart_str) {
+	
+	let new_str = [];
+	let rightparen = cart_str[1].indexOf(')');
+	new_str.push(cart_str[1].substring(5, rightparen + 1) + "?"); 
+	
+	for(let i = 1 ; i + 1 < cart_str.length; i++) {
+
+		// Count size before the first letter
+		let size = 0; 
+		for (let j = 0; j < str[i].length; j++) {
+			if (cart_str[i][j] != '|' && cart_str[i][j] != '-' && cart_str[i][j] != ' ') break;
+			else size++;
+		}
+
+		let vertical_bar = 0;
+		for (let j = 0; j < str[i].length; j++) {
+			if (cart_str[i][j] == '|') {
+				vertical_bar++;
+			};
+		}
+
+		let hyphens = '';
+		for(let j = 0; j < vertical_bar; j++) {
+			hyphens += '--';
+		}
+		
+		let new_line = hyphens + 'if ' + cart_str[i].substring(size, cart_str[i].length) + ', ';
+
+		let next_size = 0; 
+		for (let j = 0; j < str[i + 1].length; j++) {
+			if (cart_str[i + 1][j] != '|' && cart_str[i + 1][j] != '-' && cart_str[i + 1][j] != ' ') break;
+			else next_size++;
+		}
+
+		console.log("check size: " + size);
+		if(cart_str[i + 1].includes("class")) {
+			new_line = new_line + cart_str[i + 1].substring(next_size, cart_str[i + 1].length);
+			i += 1;
+		}
+		else {
+			let rightparen2 = cart_str[i + 1].indexOf(')');
+			new_line = new_line + cart_str[i + 1].substring(next_size, rightparen2 + 1) + '?';
+		}
+		
+		new_str.push(new_line);
+
+	}
+
+	for(let i = 0; i < new_str.length; i++) {
+		console.log("check new_str: " + new_str[i]);
+	}
+	
+	return new_str;
+}
