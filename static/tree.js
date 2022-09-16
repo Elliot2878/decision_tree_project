@@ -3,7 +3,7 @@ var str_hyphens = JSON.parse(localStorage.getItem("str-hyphens-array"));
 var arr = JSON.parse(localStorage.getItem("arr-array"));
 // The key is an id (a single line number starting from 0)
 var key = JSON.parse(localStorage.getItem("search_result"));
-var ifSubtree = JSON.parse(localStorage.getItem("ifSubtree"));
+// var ifSubtree = JSON.parse(localStorage.getItem("ifSubtree"));
 
 // ifSearch will become yes only after the user first search the node 
 // This can prevent the tree.html from auto-selecting the answers even though the user just left the index page. 
@@ -30,10 +30,11 @@ var currOriginNode = null;
 
 
 let ifNewInput = '';
+let ifClickedRadio = false;
 if(ifSearch == 'yes' ) {
     ifNewInput = 'no';
 }
-else if(ifSearch = 'no') {
+else if(ifSearch == 'no') {
     ifNewInput = 'yes';
 }
 
@@ -44,7 +45,7 @@ let currTreeIdList = [];
 var index = 2; // for auto selecting the answers according to path, it is used in the next option function
 rootNode();
 
-// rootNode generate the root node
+// rootNode generates the root node
 // rootNode is called whenever the page is loaded
 // No input or output
 function rootNode() {
@@ -140,59 +141,56 @@ function rootNode() {
             pathAndSubtree.push(root_key_id[i]);
         }
 
-
-        if(ifSubtree == 'no') {    
-            console.log("search path (from root to keyword): ");
-            for(let i = 0; i < root_key.length; i++) {
-                console.log(root_key[i] + '\n');
-            }
-            
-            // for passing values to python
-            let root_key_dic = Object.assign({}, root_key);
-            const s_test = JSON.stringify(root_key_dic);
-            $.ajax({
-                url:"/root_to_keyword",
-                type:"POST",
-                contentType:"application/json",
-                data: JSON.stringify(s_test),
-            });
+ 
+        console.log("search path (from root to keyword): ");
+        for(let i = 0; i < root_key.length; i++) {
+            console.log(root_key[i] + '\n');
         }
-        else if(ifSubtree == 'yes') {
-            console.log("subtree: ");
+        
+        // for passing values to python
+        let root_key_dic = Object.assign({}, root_key);
+        const s_test = JSON.stringify(root_key_dic);
+        $.ajax({
+            url:"/root_to_keyword",
+            type:"POST",
+            contentType:"application/json",
+            data: JSON.stringify(s_test),
+        });
+        console.log("subtree: ");
 
-            // get subtree
-            subtree(ifSubtree, key); // this function will fill up the path_subtree
-    
-            let path_subtree_dic = Object.assign({}, path_subtree );
-            const s2 = JSON.stringify(path_subtree_dic);
-            $.ajax({
-                url:"/get_subtree",
-                type:"POST",
-                contentType:"application/json",
-                data: JSON.stringify(s2),
-            });
-        }
-        else {
-            console.log("other nodes: ");
-            subtree(ifSubtree, key); //you need to store the subtree id in the list pathAndSubtree.
+        // get subtree
+        subtree(true, key); // this function will fill up the path_subtree
 
-            let other = [];
-            for(let i = 0; i < str_hyphens.length; i++) {
-                if(pathAndSubtree.includes(i) == false) {
-                    console.log(str_hyphens[i]);
-                    other.push(str_hyphens[i]);
-                }
-            }
+        let path_subtree_dic = Object.assign({}, path_subtree );
+        const s2 = JSON.stringify(path_subtree_dic);
+        $.ajax({
+            url:"/get_subtree",
+            type:"POST",
+            contentType:"application/json",
+            data: JSON.stringify(s2),
+        });
+        
+        // else {
+        //     console.log("other nodes: ");
+        //     subtree(ifSubtree, key); //you need to store the subtree id in the list pathAndSubtree.
 
-            let other_dic = Object.assign({}, other );
-            const s2 = JSON.stringify(other_dic);
-            $.ajax({
-                url:"/get_subtree",
-                type:"POST",
-                contentType:"application/json",
-                data: JSON.stringify(s2),
-            });
-        }
+        //     let other = [];
+        //     for(let i = 0; i < str_hyphens.length; i++) {
+        //         if(pathAndSubtree.includes(i) == false) {
+        //             console.log(str_hyphens[i]);
+        //             other.push(str_hyphens[i]);
+        //         }
+        //     }
+
+        //     let other_dic = Object.assign({}, other );
+        //     const s2 = JSON.stringify(other_dic);
+        //     $.ajax({
+        //         url:"/get_subtree",
+        //         type:"POST",
+        //         contentType:"application/json",
+        //         data: JSON.stringify(s2),
+        //     });
+        // }
     
         // console.log("check root_key_id: " + root_key_id);
         // auto select by root_key_id
@@ -994,22 +992,21 @@ function findPath(root_id, path, k) {
 // When ifSubtree == yes, the users want to print the subtree
 // When ifSubtree == other, the users want to print boxes other than boxes in the path or subtree
 // no output
-function subtree(ifSubtree, node_id) {
-    if(ifSubtree == 'no') {
+function subtree(ifPrint, node_id) {
+
+    if(node_id < arr.length && arr[node_id].length == 0) {
         return;
     }
-    else if(arr[node_id].length == 0) {
-        return;
-    }
-    else if(ifSubtree == 'yes' || ifSubtree == 'other') {
+    else if(node_id < arr.length) {
         for(let j = 0; j < arr[node_id].length; j++) {
-            // print out the subtree
-            if(ifSubtree == 'yes') {
+            if(ifPrint == true) {
+                // print out the subtree
                 console.log(str_hyphens[arr[node_id][j]]);
             }
+
             path_subtree.push(str_hyphens[arr[node_id][j]]);
             pathAndSubtree.push(arr[node_id][j]);
-            subtree(ifSubtree, arr[node_id][j]);
+            subtree(ifPrint, arr[node_id][j]);
         }
     }
 }
@@ -1025,7 +1022,7 @@ function input_search() {
     result = keywordSearch(keyword);
 
     if(result.length == 0) {
-        alert("The node containing this keyword doesn't exist.");
+        alert("The box containing this keyword doesn't exist.");
     }
     else if(keyword == '') {
         alert("You did not input any keyword");
@@ -1033,22 +1030,21 @@ function input_search() {
     else if(result.length == 1) {
         let text = document.getElementById('result');
         
-        text.innerHTML = 'Only one node containing the keyword: <br>';
+        text.innerHTML = 'Only one box containing the keyword: <br>';
+        text.innerHTML += '<font size="-1"> (Choose at most one radio button. If you want to see the corresponding box, press the "select" button on the top of this search box.) </font> <br><br>';
+        
         // for checking the first option
         text.innerHTML += str[result[0]] + '<input name="search_result" type="radio" value="'+ result[0] +'" checked> <br>';
-
-        text.innerHTML += '<br>How do you want to print out the tree in console? <br>';
-        text.innerHTML += 'Nodes in the path/tree so far<input name="ifSubtree" type="radio" value="no" checked> <br>';
-        text.innerHTML += 'Nodes reachable from the path/tree so far<input name="ifSubtree" type="radio" value="yes"> <br>';
-        text.innerHTML += 'Other nodes<input name="ifSubtree" type="radio" value="other"> <br>';
-        text.innerHTML += '<button class="btn btn-primary" onclick="submit()">submit</button>';   
+        
+        let btn = document.getElementById("select_button_wrapper");
+        btn.innerHTML = '<button id="select" onclick="submit()">select</button><br><br>';
     }
     else {
         let text = document.getElementById('result');
-        text.innerHTML = 'All nodes containing the keyword (please choose the node you want and click submit): <br>' ;
+        text.innerHTML = '<br>Please click "Show/Hide" button to see the result from each group<br><br>' ;
         
         text.innerHTML += "<button onclick=" + "showOrHideResultsX(result)" + ">Show/Hide</button>";
-        text.innerHTML += '<div id="alreadyVisited">Already visited: </div><br>';
+        text.innerHTML += '<div id="alreadyVisited">Boxes in tree so far: </div><br>';
 
 
         // for(let i = 0; i < result.length; i++) {
@@ -1059,7 +1055,7 @@ function input_search() {
         // }
 
         text.innerHTML += "<button onclick=" + "showOrHideResultsY(result)" + ">Show/Hide</button>";
-        text.innerHTML += '<div id="reachable">Reachable: </div><br>';
+        text.innerHTML += '<div id="reachable">Boxes reachable from current tree: </div><br>';
         
         // subtree('yes', currTreeIdList[currTreeIdList.length - 1]);        
         // for(let i = 0; i < result.length; i++) {
@@ -1071,7 +1067,7 @@ function input_search() {
         pathAndSubtree = []; // empty the pathAndSubtree
 
         text.innerHTML += "<button onclick=" + "showOrHideResultsZ(result)" + ">Show/Hide</button>";
-        text.innerHTML += '<div id="otherNodes">Other nodes: </div><br>';
+        text.innerHTML += '<div id="otherNodes">Other boxes: </div><br>';
 
         // for(let i = 0; i < result.length; i++) {
         //     if(currTreeIdList.includes(result[i]) == false && pathAndSubtree.includes(result[i]) == false) {
@@ -1087,11 +1083,6 @@ function input_search() {
         //     text.innerHTML += str[result[i]] + '<input name="search_result" type="radio" value="'+ result[i] +'"> <br>';
         // }
 
-        text.innerHTML += '<br>How do you want to print out the tree with the keyword node? <br>';
-        text.innerHTML += 'Nodes in the path/tree so far<input name="ifSubtree" type="radio" value="no" checked> <br>';
-        text.innerHTML += 'Nodes reachable from the path/tree so far<input name="ifSubtree" type="radio" value="yes"> <br>';
-        text.innerHTML += 'Other nodes<input name="ifSubtree" type="radio" value="other"> <br>';
-        text.innerHTML += '<button class="btn btn-primary" onclick="submit()">submit</button>';
     }
 }
 
@@ -1100,7 +1091,6 @@ function input_search() {
 // Output: a list containing the id of the nodes with keywords. 
 function keywordSearch(key) {
     let loc = [];
-    console.log('reach');
     for(let i = 0; i < str_hyphens.length; i++) {
         let str_answer = str_hyphens[i].substring(str_hyphens[i].search(',') + 2, str_hyphens[i].length);
         result = str_answer.search(key);
@@ -1117,22 +1107,27 @@ function keywordSearch(key) {
 // once the ifSearch becomes 'yes', the page can show the desired box after reloading
 // no input or output
 function submit(){
-    let result = document.getElementsByName('search_result');
-    for(let i = 0; i < result.length; i++) {
-        if(result[i].checked) {
-            localStorage.setItem("search_result", JSON.stringify(result[i].value));
+    if(atLeastOneRadio() == true) {
+        let result = document.getElementsByName('search_result');
+        for(let i = 0; i < result.length; i++) {
+            if(result[i].checked) {
+                localStorage.setItem("search_result", JSON.stringify(result[i].value));
+            }
         }
-    }
-
-    let ifSubtree = document.getElementsByName('ifSubtree');
-    for(let i = 0; i < ifSubtree.length; i++) {
-        if(ifSubtree[i].checked) {
-            localStorage.setItem("ifSubtree", JSON.stringify(ifSubtree[i].value));
-
+    
+        let ifSubtree = document.getElementsByName('ifSubtree');
+        for(let i = 0; i < ifSubtree.length; i++) {
+            if(ifSubtree[i].checked) {
+                localStorage.setItem("ifSubtree", JSON.stringify(ifSubtree[i].value));
+    
+            }
         }
+        localStorage.setItem("ifSearch", JSON.stringify('yes'));
+        window.location.href = "tree.html"; 
     }
-    localStorage.setItem("ifSearch", JSON.stringify('yes'));
-    window.location.href = "tree.html"; 
+    else {
+        alert("Please choose one radio button");
+    }
 }
 
 // newInput handles the situation where the user selects a node containing the "DECISIONTREE" keyword.
@@ -1323,71 +1318,120 @@ function dragElement(elmnt) {
   }
 }
 
-
+// This function can show or hide the results from each group. 
+// It will be called when users clicked the first show/hide button.
+// Input: search result 
+// no output
 function showOrHideResultsX(result) {
     let x = document.getElementById("alreadyVisited");
-    if(x.textContent === "Already visited: ") {
+    if(x.textContent === "Boxes in tree so far: ") {
         x.innerHTML += '<br>';
+
+        x.innerHTML += '<font size="-1"> (Choose at most one radio button. If you want to see the corresponding box, press the "select" button on the top of this search box.) </font> <br><br>';
+       
 
         let hasResult = false;
         for(let i = 0; i < result.length; i++) {
             if(currTreeIdList.includes(result[i])) {
                 console.log(currTreeIdList[i]);
-                x.innerHTML += str[result[i]] + '<input name="search_result" type="radio" value="'+ result[i] +'" checked> <br> ';
+                x.innerHTML += str[result[i]] + '<input name="search_result" type="radio" value="'+ result[i] +'"> <br> ';
                 hasResult = true;
             }
         }
+
+        if ($('input[name=search_result]:checked').length > 0) {
+            console.log("reach");
+            ifClickedRadio = true; 
+        }   
+
         if(hasResult == false) {
             x.innerHTML += "No Result";
         }
     }
     else {
-        x.innerHTML = "Already visited: ";
+        x.innerHTML = "Boxes in tree so far: ";
     }
+
+    let btn = document.getElementById("select_button_wrapper");
+    btn.innerHTML = '<button id="select" onclick="submit()">select</button><br><br>';
 }
 
-
+// This function can show or hide the results from each group. 
+// It will be called when users clicked the second show/hide button.
+// Input: search result 
+// no output
 function showOrHideResultsY(result) {
     let y = document.getElementById("reachable");
-    if(y.textContent === "Reachable: ") {
+    if(y.textContent === "Boxes reachable from current tree: ") {
         y.innerHTML += '<br>';
 
+        y.innerHTML += '<font size="-1"> (Choose at most one radio button. If you want to see the corresponding box, press the "select" button on the top of this search box.) </font> <br><br>';
+
         let hasResult = false;
-        subtree('yes', currTreeIdList[currTreeIdList.length - 1]);        
+        subtree(false, currTreeIdList[currTreeIdList.length - 1]);        
         for(let i = 0; i < result.length; i++) {
             if(pathAndSubtree.includes(result[i])) {
-                y.innerHTML += str[result[i]] + '<input name="search_result" type="radio" value="'+ result[i] +'" checked> <br> ';
+                y.innerHTML += str[result[i]] + '<input name="search_result" type="radio" value="'+ result[i] +'"> <br> ';
                 hasResult = true;
             }
         }
+
+        if ($('input[name=search_result]:checked').length > 0) {
+            console.log("reach");
+            ifClickedRadio = true; 
+        }   
+
         if(hasResult == false) {
             y.innerHTML += "No Result";
         }
     }
     else {
-        y.innerHTML = "Reachable: ";
+        y.innerHTML = "Boxes reachable from current tree: ";
     }
+
+    let btn = document.getElementById("select_button_wrapper");
+    btn.innerHTML = '<button id="select" onclick="submit()">select</button><br><br>';
 }
 
+// This function can show or hide the results from each group. 
+// It will be called when users clicked the third show/hide button.
+// Input: search result 
+// no output
 function showOrHideResultsZ(result) {
     let z = document.getElementById("otherNodes");
-    if(z.textContent === "Other nodes: ") {
+    if(z.textContent === "Other boxes: ") {
         z.innerHTML += '<br>';
+
+        z.innerHTML += '<font size="-1"> (Choose at most one radio button. If you want to see the corresponding box, press the "select" button on the top of this search box.) </font><br><br>';
 
         let hasResult = false;
         for(let i = 0; i < result.length; i++) {
             if(currTreeIdList.includes(result[i]) == false && pathAndSubtree.includes(result[i]) == false) {
-                z.innerHTML += str[result[i]] + '<input name="search_result" type="radio" value="'+ result[i] +'" checked> <br> ';
+                z.innerHTML += str[result[i]] + '<input name="search_result" type="radio" value="'+ result[i] +'"> <br>';
                 hasResult = true;
             }
         }
+        
+        if ($('input[name=search_result]:checked').length > 0) {
+            console.log("reach");
+            ifClickedRadio = true; 
+        }   
+
         if(hasResult == false) {
             z.innerHTML += "No Result";
         }
     }
     else {
-        z.innerHTML = "Other nodes: ";
+        z.innerHTML = "Other boxes: ";
     }
+
+    let btn = document.getElementById("select_button_wrapper");
+    btn.innerHTML = '<button id="select" onclick="submit()">select</button><br><br>';
 }
 
+
+
+function atLeastOneRadio() {
+    return ($('input[type=radio]:checked').length > 0);
+}
 

@@ -5,6 +5,7 @@
     <title>Decision Tree with Animated Links</title>
     <meta charset="utf-8" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="http://api.prototypejs.org."></script>
     <link rel="stylesheet" type="text/css" href="../static/tree.css" /> 
 </head>
 
@@ -44,10 +45,14 @@
                 width: 200px; height: 100px;z-index:3;"  -->
 
     <div class="searchbox" id="mydiv">
-        <div id="mydivheader">Click here to move this box</div>
+
+        <div id="mydivheader">Click here to move this box</div><br>
+            <div id = select_button_wrapper>
+            </div>
+            <p>Enter keyword and click the search button.</p>
             <input type = 'text' name = 'keyword' id = 'input' placeholder="type keyword to search">
             <br />            
-            <button class="btn btn-primary" onclick="input_search()">search</button>
+            <button onclick="input_search()">search</button>
             <br />
             <div id='result'></div>
     </div>

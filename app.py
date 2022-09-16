@@ -75,7 +75,7 @@ def get_subtree():
     print(result)
     print(type(result))
 
-    f = open('root_to_keyword.txt', 'w')
+    f = open('root_to_keyword.txt', 'a')
     for i in range(len(result)):
         i_str = str(i)
         f.write(result[i_str])
