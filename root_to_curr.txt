@@ -1,0 +1,4 @@
+
+After initial diagnostic workup, What are the clinical findings?
+--If Multiple Myeloma (symptomatic), Perform primary treatment through myeloma therapy. Is the patient a transplant candidate?
+----If Yes, Is the patient frail?
