@@ -1041,9 +1041,8 @@ function input_search() {
     }
     else {
         let text = document.getElementById('result');
-        text.innerHTML = '<br>Please click "Show/Hide" button to see the result from each group<br><br>' ;
-        
-        text.innerHTML += "<button onclick=" + "showOrHideResultsX(result)" + ">Show/Hide</button>";
+        text.innerHTML = '<br>Please click "Expand" button to see the result from each group<br><br>' ;
+        text.innerHTML += "<button onclick=" + "showOrHideResultsX(result)" + ">Expand</button>";
         text.innerHTML += '<div id="alreadyVisited">Boxes in tree so far: </div><br>';
 
 
@@ -1054,7 +1053,7 @@ function input_search() {
         //     }
         // }
 
-        text.innerHTML += "<button onclick=" + "showOrHideResultsY(result)" + ">Show/Hide</button>";
+        text.innerHTML += "<button onclick=" + "showOrHideResultsY(result)" + ">Expand</button>";
         text.innerHTML += '<div id="reachable">Boxes reachable from current tree: </div><br>';
         
         // subtree('yes', currTreeIdList[currTreeIdList.length - 1]);        
@@ -1066,7 +1065,7 @@ function input_search() {
         
         pathAndSubtree = []; // empty the pathAndSubtree
 
-        text.innerHTML += "<button onclick=" + "showOrHideResultsZ(result)" + ">Show/Hide</button>";
+        text.innerHTML += "<button onclick=" + "showOrHideResultsZ(result)" + ">Expand</button>";
         text.innerHTML += '<div id="otherNodes">Other boxes: </div><br>';
 
         // for(let i = 0; i < result.length; i++) {
