@@ -203,7 +203,6 @@ function input() {
 		// get rid of the hyphens in str array
 		str[i] = str[i].substring(size);
 
-		//ZL: I don't know what the obj is used for as it is never used again thereafter. However, the system will crash if I commented this line 
 		obj[size / 2].push(str[i]);
 	}
 
@@ -213,10 +212,13 @@ function input() {
 		let childList = [];
 		if(arr[i].length != 0) {
 			for(let j = 0; j < arr[i].length; j++) {
-				childList.push(str[arr[i][j]]);
+				if(str[arr[i][j]] != undefined) {
+					childList.push(str[arr[i][j]]);
+				}
+				console.log("check str[arr[i][j]]: " + str[arr[i][j]]);
 			}
 		}
-
+		
 		if(childList.length !== new Set(childList).size) {
 			error = error + "This question has multiple children with the same answers below. \n";
 			error_loc = i + 1;

@@ -28,7 +28,7 @@ var bx = 87, by = 30;
 var currId = 0;
 var currOriginNode = null;
 
-
+window.setInterval(checkRadioButton, 1000);
 let ifNewInput = '';
 let ifClickedRadio = false;
 if(ifSearch == 'yes' ) {
@@ -1031,13 +1031,13 @@ function input_search() {
         let text = document.getElementById('result');
         
         text.innerHTML = 'Only one box containing the keyword: <br>';
-        text.innerHTML += '<font size="-1"> (Choose at most one radio button. If you want to see the corresponding box, press the "select" button on the top of this search box.) </font> <br><br>';
+        text.innerHTML += '<font size="-1"> (Choose at most one radio button. If you want to see the corresponding box, click one of the radio buttons below.) </font> <br><br>';
         
         // for checking the first option
         text.innerHTML += str[result[0]] + '<input name="search_result" type="radio" value="'+ result[0] +'" checked> <br>';
         
-        let btn = document.getElementById("select_button_wrapper");
-        btn.innerHTML = '<button id="select" onclick="submit()">select</button><br><br>';
+        // let btn = document.getElementById("select_button_wrapper");
+        // btn.innerHTML = '<button id="select" onclick="submit()">select</button><br><br>';
     }
     else {
         let text = document.getElementById('result');
@@ -1319,6 +1319,7 @@ function dragElement(elmnt) {
 
 // This function can show or hide the results from each group. 
 // It will be called when users clicked the first show/hide button.
+// It will also record the text in the current box for copy and paste.
 // Input: search result 
 // no output
 function showOrHideResultsX(result) {
@@ -1326,7 +1327,7 @@ function showOrHideResultsX(result) {
     if(x.textContent === "Boxes in tree so far: ") {
         x.innerHTML += '<br>';
 
-        x.innerHTML += '<font size="-1"> (Choose at most one radio button. If you want to see the corresponding box, press the "select" button on the top of this search box.) </font> <br><br>';
+        x.innerHTML += '<font size="-1"> (Choose at most one radio button. If you want to see the corresponding box, click one of the radio buttons below.) </font> <br><br>';
        
 
         let hasResult = false;
@@ -1351,8 +1352,8 @@ function showOrHideResultsX(result) {
         x.innerHTML = "Boxes in tree so far: ";
     }
 
-    let btn = document.getElementById("select_button_wrapper");
-    btn.innerHTML = '<button id="select" onclick="submit()">select</button><br><br>';
+    // let btn = document.getElementById("select_button_wrapper");
+    // btn.innerHTML = '<button id="select" onclick="submit()">select</button><br><br>';
 }
 
 // This function can show or hide the results from each group. 
@@ -1364,7 +1365,7 @@ function showOrHideResultsY(result) {
     if(y.textContent === "Boxes reachable from current tree: ") {
         y.innerHTML += '<br>';
 
-        y.innerHTML += '<font size="-1"> (Choose at most one radio button. If you want to see the corresponding box, press the "select" button on the top of this search box.) </font> <br><br>';
+        y.innerHTML += '<font size="-1"> (Choose at most one radio button. If you want to see the corresponding box, click one of the radio buttons below.) </font> <br><br>';
 
         let hasResult = false;
         subtree(false, currTreeIdList[currTreeIdList.length - 1]);        
@@ -1388,8 +1389,8 @@ function showOrHideResultsY(result) {
         y.innerHTML = "Boxes reachable from current tree: ";
     }
 
-    let btn = document.getElementById("select_button_wrapper");
-    btn.innerHTML = '<button id="select" onclick="submit()">select</button><br><br>';
+    // let btn = document.getElementById("select_button_wrapper");
+    // btn.innerHTML = '<button id="select" onclick="submit()">select</button><br><br>';
 }
 
 // This function can show or hide the results from each group. 
@@ -1401,7 +1402,7 @@ function showOrHideResultsZ(result) {
     if(z.textContent === "Other boxes: ") {
         z.innerHTML += '<br>';
 
-        z.innerHTML += '<font size="-1"> (Choose at most one radio button. If you want to see the corresponding box, press the "select" button on the top of this search box.) </font><br><br>';
+        z.innerHTML += '<font size="-1"> (Choose at most one radio button. If you want to see the corresponding box, click one of the radio buttons below.) </font><br><br>';
 
         let hasResult = false;
         for(let i = 0; i < result.length; i++) {
@@ -1424,11 +1425,80 @@ function showOrHideResultsZ(result) {
         z.innerHTML = "Other boxes: ";
     }
 
-    let btn = document.getElementById("select_button_wrapper");
-    btn.innerHTML = '<button id="select" onclick="submit()">select</button><br><br>';
+    // let btn = document.getElementById("select_button_wrapper");
+    // btn.innerHTML = '<button id="select" onclick="submit()">select</button><br><br>';
 }
 
+// This function can check if the radio button is selected
+// It will be called for 10000 milliseconds 
+// no input or output
+function checkRadioButton() {
+    if(atLeastOneRadio() == true) {
+        let result = document.getElementsByName('search_result');
+        for(let i = 0; i < result.length; i++) {
+            if(result[i].checked) {
+                localStorage.setItem("search_result", JSON.stringify(result[i].value));
+            }
+        }
+    
+        let ifSubtree = document.getElementsByName('ifSubtree');
+        for(let i = 0; i < ifSubtree.length; i++) {
+            if(ifSubtree[i].checked) {
+                localStorage.setItem("ifSubtree", JSON.stringify(ifSubtree[i].value));
+    
+            }
+        }
+        localStorage.setItem("ifSearch", JSON.stringify('yes'));
+        window.location.href = "tree.html"; 
+    }
+}
 
+function fallbackCopyTextToClipboard(text) {
+    var textArea = document.createElement("textarea");
+    textArea.value = text;
+    
+    // Avoid scrolling to bottom
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.position = "fixed";
+  
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+  
+    try {
+      var successful = document.execCommand('copy');
+      var msg = successful ? 'successful' : 'unsuccessful';
+      console.log('Fallback: Copying text command was ' + msg);
+    } catch (err) {
+      console.error('Fallback: Oops, unable to copy', err);
+    }
+  
+    document.body.removeChild(textArea);
+  }
+  function copyTextToClipboard(text) {
+    if (!navigator.clipboard) {
+      fallbackCopyTextToClipboard(text);
+      return;
+    }
+    navigator.clipboard.writeText(text).then(function() {
+      console.log('Async: Copying to clipboard was successful!');
+    }, function(err) {
+      console.error('Async: Could not copy text: ', err);
+    });
+  }
+  
+  var copyBobBtn = document.querySelector('.js-copy-bob-btn'),
+    copyJaneBtn = document.querySelector('.js-copy-jane-btn');
+  
+  copyBobBtn.addEventListener('click', function(event) {
+    copyTextToClipboard('Bob');
+  });
+  
+  
+  copyJaneBtn.addEventListener('click', function(event) {
+    copyTextToClipboard('Jane');
+  });
 
 function atLeastOneRadio() {
     return ($('input[type=radio]:checked').length > 0);
