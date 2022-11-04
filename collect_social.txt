@@ -1,0 +1,233 @@
+Are you above the age of 62?
+--If yes, do you have your original birth certificate?
+----If no, you are not eligible to file for social security.
+----If yes, do you have proof of U.S. Citizenship or lawful alien status if you were not born in the United States?
+------If no, you are not eligible to file for social security.
+------If yes, have you served in the United States military?
+--------If yes, do you have your service papers?
+----------If no, you are not eligible to file for social security.
+----------If yes, do you have a copy of your W-2 forms and/or your self-employment tax returns?
+------------If no, you are not eligible to file for social security.
+------------If yes, do you have the name and address of your employer over the last two years and proof of income?
+--------------If no, you are not eligible to file for social security.
+--------------If yes, you qualify for social security benefits!
+--------If no, do you have a copy of your W-2 forms and/or your self-employment tax returns?
+----------If no, you are not eligible to file for social security.
+----------If yes, do you have the name and address of your employer over the last two years and proof of income?
+------------If yes, you qualify for social security benefits!
+------------If no, you are not eligible to file for social security.
+--------If no, you are not eligible to file for social security.
+--If no, are you disabled?
+----If yes, how old are you?
+------If younger than 24, do you have at least 6 work credits?
+--------If yes, do you have your original birth certificate?
+----------If no, you are not eligible to file for social security.
+----------If yes, do you have proof of U.S. Citizenship or lawful alien status if you were not born in the United States?
+------------If no, you are not eligible to file for social security.
+------------If yes, have you served in the United States military?
+--------------If yes, do you have your service papers?
+----------------If no, you are not eligible to file for social security.
+----------------If yes, do you have a copy of your W-2 forms and/or your self-employment tax returns?
+------------------If no, you are not eligible to file for social security.
+------------------If yes, do you have the name and address of your employer over the last two years and proof of income?
+--------------------If no, you are not eligible to file for social security.
+--------------------If yes, you qualify for social security benefits!
+--------------If no, do you have a copy of your W-2 forms and/or your self-employment tax returns?
+----------------If yes, do you have the name and address of your employer over the last two years and proof of income?
+------------------If no, you are not eligible to file for social security.
+------------------If yes, you qualify for social security benefits!
+----------------If no, you are not eligible to file for social security.
+--------If no, you are not eligible to file for social security.
+------If 24 - 31 years old, do you have at least 14 work credits?
+--------If yes, do you have your original birth certificate?
+----------If no, you are not eligible to file for social security.
+----------If yes, do you have proof of U.S. Citizenship or lawful alien status if you were not born in the United States?
+------------If no, you are not eligible to file for social security.
+------------If yes, have you served in the United States military?
+--------------If yes, do you have your service papers?
+----------------If no, you are not eligible to file for social security.
+----------------If yes, do you have a copy of your W-2 forms and/or your self-employment tax returns?
+------------------If no, you are not eligible to file for social security.
+------------------If yes, do you have the name and address of your employer over the last two years and proof of income?
+--------------------If no, you are not eligible to file for social security.
+--------------------If yes, you qualify for social security benefits!
+--------------If no, do you have a copy of your W-2 forms and/or your self-employment tax returns?
+----------------If yes, do you have the name and address of your employer over the last two years and proof of income?
+------------------If no, you are not eligible to file for social security.
+------------------If yes, you qualify for social security benefits!
+----------------If no, you are not eligible to file for social security.
+--------If no, you are not eligible to file for social security.
+------If 31 - 42 years old, do you have at least 20 work credits?
+--------If yes, do you have your original birth certificate?
+----------If no, you are not eligible to file for social security.
+----------If yes, do you have proof of U.S. Citizenship or lawful alien status if you were not born in the United States?
+------------If no, you are not eligible to file for social security.
+------------If yes, have you served in the United States military?
+--------------If yes, do you have your service papers?
+----------------If no, you are not eligible to file for social security.
+----------------If yes, do you have a copy of your W-2 forms and/or your self-employment tax returns?
+------------------If no, you are not eligible to file for social security.
+------------------If yes, do you have the name and address of your employer over the last two years and proof of income?
+--------------------If no, you are not eligible to file for social security.
+--------------------If yes, you qualify for social security benefits!
+--------------If no, do you have a copy of your W-2 forms and/or your self-employment tax returns?
+----------------If yes, do you have the name and address of your employer over the last two years and proof of income?
+------------------If no, you are not eligible to file for social security.
+------------------If yes, you qualify for social security benefits!
+----------------If no, you are not eligible to file for social security.
+--------If no, you are not eligible to file for social security.
+------If 42 - 44 years old, do you have at least 22 work credits?
+--------If yes, do you have your original birth certificate?
+----------If no, you are not eligible to file for social security.
+----------If yes, do you have proof of U.S. Citizenship or lawful alien status if you were not born in the United States?
+------------If no, you are not eligible to file for social security.
+------------If yes, have you served in the United States military?
+--------------If yes, do you have your service papers?
+----------------If no, you are not eligible to file for social security.
+----------------If yes, do you have a copy of your W-2 forms and/or your self-employment tax returns?
+------------------If no, you are not eligible to file for social security.
+------------------If yes, do you have the name and address of your employer over the last two years and proof of income?
+--------------------If no, you are not eligible to file for social security.
+--------------------If yes, you qualify for social security benefits!
+--------------If no, do you have a copy of your W-2 forms and/or your self-employment tax returns?
+----------------If yes, do you have the name and address of your employer over the last two years and proof of income?
+------------------If no, you are not eligible to file for social security.
+------------------If yes, you qualify for social security benefits!
+----------------If no, you are not eligible to file for social security.
+--------If no, you are not eligible to file for social security.
+------If 44 - 46 years old, do you have at least 24 work credits?
+--------If yes, do you have your original birth certificate?
+----------If no, you are not eligible to file for social security.
+----------If yes, do you have proof of U.S. Citizenship or lawful alien status if you were not born in the United States?
+------------If no, you are not eligible to file for social security.
+------------If yes, have you served in the United States military?
+--------------If yes, do you have your service papers?
+----------------If no, you are not eligible to file for social security.
+----------------If yes, do you have a copy of your W-2 forms and/or your self-employment tax returns?
+------------------If no, you are not eligible to file for social security.
+------------------If yes, do you have the name and address of your employer over the last two years and proof of income?
+--------------------If no, you are not eligible to file for social security.
+--------------------If yes, you qualify for social security benefits!
+--------------If no, do you have a copy of your W-2 forms and/or your self-employment tax returns?
+----------------If yes, do you have the name and address of your employer over the last two years and proof of income?
+------------------If no, you are not eligible to file for social security.
+------------------If yes, you qualify for social security benefits!
+----------------If no, you are not eligible to file for social security.
+--------If no, you are not eligible to file for social security.
+------If 46 - 48 years old, do you have at least 26 work credits?
+--------If yes, do you have your original birth certificate?
+----------If no, you are not eligible to file for social security.
+----------If yes, do you have proof of U.S. Citizenship or lawful alien status if you were not born in the United States?
+------------If no, you are not eligible to file for social security.
+------------If yes, have you served in the United States military?
+--------------If yes, do you have your service papers?
+----------------If no, you are not eligible to file for social security.
+----------------If yes, do you have a copy of your W-2 forms and/or your self-employment tax returns?
+------------------If no, you are not eligible to file for social security.
+------------------If yes, do you have the name and address of your employer over the last two years and proof of income?
+--------------------If no, you are not eligible to file for social security.
+--------------------If yes, you qualify for social security benefits!
+--------------If no, do you have a copy of your W-2 forms and/or your self-employment tax returns?
+----------------If yes, do you have the name and address of your employer over the last two years and proof of income?
+------------------If no, you are not eligible to file for social security.
+------------------If yes, you qualify for social security benefits!
+----------------If no, you are not eligible to file for social security.
+--------If no, you are not eligible to file for social security.
+------If 48 - 50 years old, do you have at least 28 work credits?
+--------If yes, do you have your original birth certificate?
+----------If no, you are not eligible to file for social security.
+----------If yes, do you have proof of U.S. Citizenship or lawful alien status if you were not born in the United States?
+------------If no, you are not eligible to file for social security.
+------------If yes, have you served in the United States military?
+--------------If yes, do you have your service papers?
+----------------If no, you are not eligible to file for social security.
+----------------If yes, do you have a copy of your W-2 forms and/or your self-employment tax returns?
+------------------If no, you are not eligible to file for social security.
+------------------If yes, do you have the name and address of your employer over the last two years and proof of income?
+--------------------If no, you are not eligible to file for social security.
+--------------------If yes, you qualify for social security benefits!
+--------------If no, do you have a copy of your W-2 forms and/or your self-employment tax returns?
+----------------If yes, do you have the name and address of your employer over the last two years and proof of income?
+------------------If no, you are not eligible to file for social security.
+------------------If yes, you qualify for social security benefits!
+----------------If no, you are not eligible to file for social security.
+--------If no, you are not eligible to file for social security.
+------If 52 - 54 years old, do you have at least 30 work credits?
+--------If yes, do you have your original birth certificate?
+----------If no, you are not eligible to file for social security.
+----------If yes, do you have proof of U.S. Citizenship or lawful alien status if you were not born in the United States?
+------------If no, you are not eligible to file for social security.
+------------If yes, have you served in the United States military?
+--------------If yes, do you have your service papers?
+----------------If no, you are not eligible to file for social security.
+----------------If yes, do you have a copy of your W-2 forms and/or your self-employment tax returns?
+------------------If no, you are not eligible to file for social security.
+------------------If yes, do you have the name and address of your employer over the last two years and proof of income?
+--------------------If no, you are not eligible to file for social security.
+--------------------If yes, you qualify for social security benefits!
+--------------If no, do you have a copy of your W-2 forms and/or your self-employment tax returns?
+----------------If yes, do you have the name and address of your employer over the last two years and proof of income?
+------------------If no, you are not eligible to file for social security.
+------------------If yes, you qualify for social security benefits!
+----------------If no, you are not eligible to file for social security.
+--------If no, you are not eligible to file for social security.
+------If 54 - 56 years old, do you have at least 32 work credits?
+--------If yes, do you have your original birth certificate?
+----------If no, you are not eligible to file for social security.
+----------If yes, do you have proof of U.S. Citizenship or lawful alien status if you were not born in the United States?
+------------If no, you are not eligible to file for social security.
+------------If yes, have you served in the United States military?
+--------------If yes, do you have your service papers?
+----------------If no, you are not eligible to file for social security.
+----------------If yes, do you have a copy of your W-2 forms and/or your self-employment tax returns?
+------------------If no, you are not eligible to file for social security.
+------------------If yes, do you have the name and address of your employer over the last two years and proof of income?
+--------------------If no, you are not eligible to file for social security.
+--------------------If yes, you qualify for social security benefits!
+--------------If no, do you have a copy of your W-2 forms and/or your self-employment tax returns?
+----------------If yes, do you have the name and address of your employer over the last two years and proof of income?
+------------------If no, you are not eligible to file for social security.
+------------------If yes, you qualify for social security benefits!
+----------------If no, you are not eligible to file for social security.
+--------If no, you are not eligible to file for social security.
+------If 56 - 58 years old, do you have at least 34 work credits?
+--------If yes, do you have your original birth certificate?
+----------If no, you are not eligible to file for social security.
+----------If yes, do you have proof of U.S. Citizenship or lawful alien status if you were not born in the United States?
+------------If no, you are not eligible to file for social security.
+------------If yes, have you served in the United States military?
+--------------If yes, do you have your service papers?
+----------------If no, you are not eligible to file for social security.
+----------------If yes, do you have a copy of your W-2 forms and/or your self-employment tax returns?
+------------------If no, you are not eligible to file for social security.
+------------------If yes, do you have the name and address of your employer over the last two years and proof of income?
+--------------------If no, you are not eligible to file for social security.
+--------------------If yes, you qualify for social security benefits!
+--------------If no, do you have a copy of your W-2 forms and/or your self-employment tax returns?
+----------------If yes, do you have the name and address of your employer over the last two years and proof of income?
+------------------If no, you are not eligible to file for social security.
+------------------If yes, you qualify for social security benefits!
+----------------If no, you are not eligible to file for social security.
+--------If no, you are not eligible to file for social security.
+------If 58 - 60 years old, do you have at least 36 work credits?
+--------If yes, do you have your original birth certificate?
+----------If no, you are not eligible to file for social security.
+----------If yes, do you have proof of U.S. Citizenship or lawful alien status if you were not born in the United States?
+------------If no, you are not eligible to file for social security.
+------------If yes, have you served in the United States military?
+--------------If yes, do you have your service papers?
+----------------If no, you are not eligible to file for social security.
+----------------If yes, do you have a copy of your W-2 forms and/or your self-employment tax returns?
+------------------If no, you are not eligible to file for social security.
+------------------If yes, do you have the name and address of your employer over the last two years and proof of income?
+--------------------If no, you are not eligible to file for social security.
+--------------------If yes, you qualify for social security benefits!
+--------------If no, do you have a copy of your W-2 forms and/or your self-employment tax returns?
+----------------If yes, do you have the name and address of your employer over the last two years and proof of income?
+------------------If no, you are not eligible to file for social security.
+------------------If yes, you qualify for social security benefits!
+----------------If no, you are not eligible to file for social security.
+--------If no, you are not eligible to file for social security.
+----If no, you are not eligible to file for social security benefits at this time.
+
+----DECISIONTREE: 
